@@ -1,0 +1,287 @@
+{
+  "generated_at": "2026-05-16T08:39:22.108442-04:00",
+  "date_display": "16/05/2026",
+  "summary": {
+    "total_games_mlb": 15,
+    "total_games_nba": 0,
+    "total_picks": 3,
+    "sports_active": [
+      "MLB"
+    ]
+  },
+  "games": [
+    {
+      "id": 824278,
+      "sport": "MLB",
+      "home": "Detroit Tigers",
+      "away": "Toronto Blue Jays",
+      "start_time": "01:10 PM",
+      "start_time_iso": "2026-05-16T13:10:00-04:00",
+      "home_pitcher": "Casey Mize",
+      "away_pitcher": "Mason Fluharty",
+      "venue": "Comerica Park",
+      "home_prob_model": 48.3,
+      "away_prob_model": 51.7,
+      "has_model_prediction": true
+    },
+    {
+      "id": 823060,
+      "sport": "MLB",
+      "home": "St. Louis Cardinals",
+      "away": "Kansas City Royals",
+      "start_time": "02:15 PM",
+      "start_time_iso": "2026-05-16T14:15:00-04:00",
+      "home_pitcher": "Kyle Leahy",
+      "away_pitcher": "Noah Cameron",
+      "venue": "Busch Stadium",
+      "home_prob_model": 42.6,
+      "away_prob_model": 57.4,
+      "has_model_prediction": true
+    },
+    {
+      "id": 824359,
+      "sport": "MLB",
+      "home": "Colorado Rockies",
+      "away": "Arizona Diamondbacks",
+      "start_time": "03:10 PM",
+      "start_time_iso": "2026-05-16T15:10:00-04:00",
+      "home_pitcher": "Tomoyuki Sugano",
+      "away_pitcher": "Eduardo Rodriguez",
+      "venue": "Coors Field",
+      "home_prob_model": 39.0,
+      "away_prob_model": 61.0,
+      "has_model_prediction": true
+    },
+    {
+      "id": 822737,
+      "sport": "MLB",
+      "home": "Washington Nationals",
+      "away": "Baltimore Orioles",
+      "start_time": "04:05 PM",
+      "start_time_iso": "2026-05-16T16:05:00-04:00",
+      "home_pitcher": "Cade Cavalli",
+      "away_pitcher": "Chris Bassitt",
+      "venue": "Nationals Park",
+      "home_prob_model": 43.5,
+      "away_prob_model": 56.5,
+      "has_model_prediction": true
+    },
+    {
+      "id": 823382,
+      "sport": "MLB",
+      "home": "Pittsburgh Pirates",
+      "away": "Philadelphia Phillies",
+      "start_time": "04:05 PM",
+      "start_time_iso": "2026-05-16T16:05:00-04:00",
+      "home_pitcher": "Bubba Chandler",
+      "away_pitcher": "Cristopher Sánchez",
+      "venue": "PNC Park",
+      "home_prob_model": 48.0,
+      "away_prob_model": 52.0,
+      "has_model_prediction": true
+    },
+    {
+      "id": 822981,
+      "sport": "MLB",
+      "home": "Tampa Bay Rays",
+      "away": "Miami Marlins",
+      "start_time": "04:10 PM",
+      "start_time_iso": "2026-05-16T16:10:00-04:00",
+      "home_pitcher": "Nick Martinez",
+      "away_pitcher": "Sandy Alcantara",
+      "venue": "Tropicana Field",
+      "home_prob_model": 40.6,
+      "away_prob_model": 59.4,
+      "has_model_prediction": true
+    },
+    {
+      "id": 824435,
+      "sport": "MLB",
+      "home": "Cleveland Guardians",
+      "away": "Cincinnati Reds",
+      "start_time": "06:10 PM",
+      "start_time_iso": "2026-05-16T18:10:00-04:00",
+      "home_pitcher": "Joey Cantillo",
+      "away_pitcher": "Chris Paddack",
+      "venue": "Progressive Field",
+      "home_prob_model": 45.5,
+      "away_prob_model": 54.5,
+      "has_model_prediction": true
+    },
+    {
+      "id": 824193,
+      "sport": "MLB",
+      "home": "Houston Astros",
+      "away": "Texas Rangers",
+      "start_time": "07:10 PM",
+      "start_time_iso": "2026-05-16T19:10:00-04:00",
+      "home_pitcher": "Kai-Wei Teng",
+      "away_pitcher": "Jacob deGrom",
+      "venue": "Daikin Park",
+      "home_prob_model": 48.2,
+      "away_prob_model": 51.8,
+      "has_model_prediction": true
+    },
+    {
+      "id": 824600,
+      "sport": "MLB",
+      "home": "Chicago White Sox",
+      "away": "Chicago Cubs",
+      "start_time": "07:10 PM",
+      "start_time_iso": "2026-05-16T19:10:00-04:00",
+      "home_pitcher": "Davis Martin",
+      "away_pitcher": "Jameson Taillon",
+      "venue": "Rate Field",
+      "home_prob_model": 44.3,
+      "away_prob_model": 55.7,
+      "has_model_prediction": true
+    },
+    {
+      "id": 823706,
+      "sport": "MLB",
+      "home": "Minnesota Twins",
+      "away": "Milwaukee Brewers",
+      "start_time": "07:10 PM",
+      "start_time_iso": "2026-05-16T19:10:00-04:00",
+      "home_pitcher": "Connor Prielipp",
+      "away_pitcher": "Logan Henderson",
+      "venue": "Target Field",
+      "home_prob_model": 41.2,
+      "away_prob_model": 58.8,
+      "has_model_prediction": true
+    },
+    {
+      "id": 823139,
+      "sport": "MLB",
+      "home": "Seattle Mariners",
+      "away": "San Diego Padres",
+      "start_time": "07:15 PM",
+      "start_time_iso": "2026-05-16T19:15:00-04:00",
+      "home_pitcher": "Logan Gilbert",
+      "away_pitcher": "Walker Buehler",
+      "venue": "T-Mobile Park",
+      "home_prob_model": 38.2,
+      "away_prob_model": 61.8,
+      "has_model_prediction": true
+    },
+    {
+      "id": 824924,
+      "sport": "MLB",
+      "home": "Atlanta Braves",
+      "away": "Boston Red Sox",
+      "start_time": "07:15 PM",
+      "start_time_iso": "2026-05-16T19:15:00-04:00",
+      "home_pitcher": "Bryce Elder",
+      "away_pitcher": "Payton Tolle",
+      "venue": "Truist Park",
+      "home_prob_model": 41.0,
+      "away_prob_model": 59.0,
+      "has_model_prediction": true
+    },
+    {
+      "id": 823627,
+      "sport": "MLB",
+      "home": "New York Mets",
+      "away": "New York Yankees",
+      "start_time": "07:15 PM",
+      "start_time_iso": "2026-05-16T19:15:00-04:00",
+      "home_pitcher": "Huascar Brazobán",
+      "away_pitcher": "Carlos Rodón",
+      "venue": "Citi Field",
+      "home_prob_model": 44.0,
+      "away_prob_model": 56.0,
+      "has_model_prediction": true
+    },
+    {
+      "id": 824038,
+      "sport": "MLB",
+      "home": "Los Angeles Angels",
+      "away": "Los Angeles Dodgers",
+      "start_time": "09:38 PM",
+      "start_time_iso": "2026-05-16T21:38:00-04:00",
+      "home_pitcher": "José Soriano",
+      "away_pitcher": "Justin Wrobleski",
+      "venue": "Angel Stadium",
+      "home_prob_model": 37.0,
+      "away_prob_model": 63.0,
+      "has_model_prediction": true
+    },
+    {
+      "id": 825007,
+      "sport": "MLB",
+      "home": "Athletics",
+      "away": "San Francisco Giants",
+      "start_time": "09:40 PM",
+      "start_time_iso": "2026-05-16T21:40:00-04:00",
+      "home_pitcher": "Luis Severino",
+      "away_pitcher": "Trevor McDonald",
+      "venue": "Sutter Health Park",
+      "home_prob_model": 53.4,
+      "away_prob_model": 46.6,
+      "has_model_prediction": true
+    }
+  ],
+  "picks": [
+    {
+      "sport": "MLB",
+      "game": "Los Angeles Dodgers @ Los Angeles Angels",
+      "pick": "Los Angeles Dodgers",
+      "side": "away",
+      "start_time": "09:38 PM",
+      "model_prob": 63.0,
+      "estimated_implied_prob": 61.0,
+      "edge": 2.0,
+      "confidence": 31.9,
+      "estimated_odds": -157,
+      "home_pitcher": "José Soriano",
+      "away_pitcher": "Justin Wrobleski"
+    },
+    {
+      "sport": "MLB",
+      "game": "San Diego Padres @ Seattle Mariners",
+      "pick": "San Diego Padres",
+      "side": "away",
+      "start_time": "07:15 PM",
+      "model_prob": 61.8,
+      "estimated_implied_prob": 60.0,
+      "edge": 1.8,
+      "confidence": 28.9,
+      "estimated_odds": -150,
+      "home_pitcher": "Logan Gilbert",
+      "away_pitcher": "Walker Buehler"
+    },
+    {
+      "sport": "MLB",
+      "game": "Arizona Diamondbacks @ Colorado Rockies",
+      "pick": "Arizona Diamondbacks",
+      "side": "away",
+      "start_time": "03:10 PM",
+      "model_prob": 61.0,
+      "estimated_implied_prob": 59.4,
+      "edge": 1.6,
+      "confidence": 26.9,
+      "estimated_odds": -146,
+      "home_pitcher": "Tomoyuki Sugano",
+      "away_pitcher": "Eduardo Rodriguez"
+    }
+  ],
+  "parlays": {
+    "conservador": {
+      "legs": [
+        {
+          "pick": "Los Angeles Dodgers",
+          "game": "Los Angeles Dodgers @ Los Angeles Angels"
+        },
+        {
+          "pick": "San Diego Padres",
+          "game": "San Diego Padres @ Seattle Mariners"
+        },
+        {
+          "pick": "Arizona Diamondbacks",
+          "game": "Arizona Diamondbacks @ Colorado Rockies"
+        }
+      ],
+      "probability": 23.7
+    }
+  }
+}
