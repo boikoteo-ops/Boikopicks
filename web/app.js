@@ -35,8 +35,11 @@ function render(data) {
 
 function renderHeader(data) {
   const date = new Date(data.generated_at);
-  const opts = { weekday: 'long', day: 'numeric', month: 'long' };
-  const dateStr = date.toLocaleDateString('es-DO', opts);
+  const weekday = date.toLocaleDateString('es-DO', { weekday: 'long' });
+  const day = date.getDate();
+  const month = date.toLocaleDateString('es-DO', { month: 'long' });
+  const capitalize = s => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+  const dateStr = `${capitalize(weekday)}, ${day} de ${month}`;
 
   document.getElementById('dateText').textContent = dateStr;
 

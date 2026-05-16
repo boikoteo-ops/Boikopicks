@@ -96,7 +96,6 @@ html, body {
 .date-text {
   font-size: 22px;
   font-weight: 700;
-  text-transform: capitalize;
 }
 
 .date-meta {
