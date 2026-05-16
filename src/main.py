@@ -17,7 +17,7 @@ def run_pipeline():
     now = datetime.now(tz)
 
     print("=" * 60)
-    print(f"BOIKOPICKS — Generación de picks")
+    print(f"ALMAPICKS — Generación de picks")
     print(f"Fecha: {now.strftime('%A %d/%m/%Y')}")
     print(f"Hora: {now.strftime('%I:%M %p')} AST")
     print("=" * 60)

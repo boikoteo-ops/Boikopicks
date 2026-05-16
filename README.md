@@ -1,2 +1,2 @@
-# Boikopicks
+# Almapicks
 Predicciones para apuestas
