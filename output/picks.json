@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-16T08:39:22.108442-04:00",
+  "generated_at": "2026-05-16T08:47:49.162448-04:00",
   "date_display": "16/05/2026",
   "summary": {
     "total_games_mlb": 15,
@@ -20,8 +20,8 @@
       "home_pitcher": "Casey Mize",
       "away_pitcher": "Mason Fluharty",
       "venue": "Comerica Park",
-      "home_prob_model": 48.3,
-      "away_prob_model": 51.7,
+      "home_prob_model": 51.7,
+      "away_prob_model": 48.3,
       "has_model_prediction": true
     },
     {
@@ -34,8 +34,8 @@
       "home_pitcher": "Kyle Leahy",
       "away_pitcher": "Noah Cameron",
       "venue": "Busch Stadium",
-      "home_prob_model": 42.6,
-      "away_prob_model": 57.4,
+      "home_prob_model": 57.4,
+      "away_prob_model": 42.6,
       "has_model_prediction": true
     },
     {
@@ -62,8 +62,8 @@
       "home_pitcher": "Cade Cavalli",
       "away_pitcher": "Chris Bassitt",
       "venue": "Nationals Park",
-      "home_prob_model": 43.5,
-      "away_prob_model": 56.5,
+      "home_prob_model": 56.5,
+      "away_prob_model": 43.5,
       "has_model_prediction": true
     },
     {
@@ -76,8 +76,8 @@
       "home_pitcher": "Bubba Chandler",
       "away_pitcher": "Cristopher Sánchez",
       "venue": "PNC Park",
-      "home_prob_model": 48.0,
-      "away_prob_model": 52.0,
+      "home_prob_model": 52.0,
+      "away_prob_model": 48.0,
       "has_model_prediction": true
     },
     {
@@ -90,8 +90,8 @@
       "home_pitcher": "Nick Martinez",
       "away_pitcher": "Sandy Alcantara",
       "venue": "Tropicana Field",
-      "home_prob_model": 40.6,
-      "away_prob_model": 59.4,
+      "home_prob_model": 59.4,
+      "away_prob_model": 40.6,
       "has_model_prediction": true
     },
     {
@@ -104,8 +104,8 @@
       "home_pitcher": "Joey Cantillo",
       "away_pitcher": "Chris Paddack",
       "venue": "Progressive Field",
-      "home_prob_model": 45.5,
-      "away_prob_model": 54.5,
+      "home_prob_model": 54.5,
+      "away_prob_model": 45.5,
       "has_model_prediction": true
     },
     {
@@ -118,8 +118,8 @@
       "home_pitcher": "Kai-Wei Teng",
       "away_pitcher": "Jacob deGrom",
       "venue": "Daikin Park",
-      "home_prob_model": 48.2,
-      "away_prob_model": 51.8,
+      "home_prob_model": 51.8,
+      "away_prob_model": 48.2,
       "has_model_prediction": true
     },
     {
@@ -160,8 +160,8 @@
       "home_pitcher": "Logan Gilbert",
       "away_pitcher": "Walker Buehler",
       "venue": "T-Mobile Park",
-      "home_prob_model": 38.2,
-      "away_prob_model": 61.8,
+      "home_prob_model": 61.8,
+      "away_prob_model": 38.2,
       "has_model_prediction": true
     },
     {
@@ -174,8 +174,8 @@
       "home_pitcher": "Bryce Elder",
       "away_pitcher": "Payton Tolle",
       "venue": "Truist Park",
-      "home_prob_model": 41.0,
-      "away_prob_model": 59.0,
+      "home_prob_model": 59.0,
+      "away_prob_model": 41.0,
       "has_model_prediction": true
     },
     {
@@ -239,8 +239,8 @@
     {
       "sport": "MLB",
       "game": "San Diego Padres @ Seattle Mariners",
-      "pick": "San Diego Padres",
-      "side": "away",
+      "pick": "Seattle Mariners",
+      "side": "home",
       "start_time": "07:15 PM",
       "model_prob": 61.8,
       "estimated_implied_prob": 60.0,
@@ -273,7 +273,7 @@
           "game": "Los Angeles Dodgers @ Los Angeles Angels"
         },
         {
-          "pick": "San Diego Padres",
+          "pick": "Seattle Mariners",
           "game": "San Diego Padres @ Seattle Mariners"
         },
         {
