@@ -1,57 +1,15 @@
 {
-  "generated_at": "2026-05-16T15:14:26.901927-04:00",
+  "generated_at": "2026-05-16T18:34:15.029798-04:00",
   "date_display": "16/05/2026",
   "summary": {
-    "total_games_mlb": 15,
+    "total_games_mlb": 12,
     "total_games_nba": 0,
-    "total_picks": 12,
+    "total_picks": 9,
     "sports_active": [
       "MLB"
     ]
   },
   "games": [
-    {
-      "id": 824278,
-      "sport": "MLB",
-      "home": "Detroit Tigers",
-      "away": "Toronto Blue Jays",
-      "start_time": "01:10 PM",
-      "start_time_iso": "2026-05-16T13:10:00-04:00",
-      "home_pitcher": "Casey Mize",
-      "away_pitcher": "Mason Fluharty",
-      "venue": "Comerica Park",
-      "home_prob_model": 53.7,
-      "away_prob_model": 46.3,
-      "has_model_prediction": true
-    },
-    {
-      "id": 823060,
-      "sport": "MLB",
-      "home": "St. Louis Cardinals",
-      "away": "Kansas City Royals",
-      "start_time": "02:15 PM",
-      "start_time_iso": "2026-05-16T14:15:00-04:00",
-      "home_pitcher": "Kyle Leahy",
-      "away_pitcher": "Noah Cameron",
-      "venue": "Busch Stadium",
-      "home_prob_model": 57.1,
-      "away_prob_model": 42.9,
-      "has_model_prediction": true
-    },
-    {
-      "id": 824359,
-      "sport": "MLB",
-      "home": "Colorado Rockies",
-      "away": "Arizona Diamondbacks",
-      "start_time": "03:10 PM",
-      "start_time_iso": "2026-05-16T15:10:00-04:00",
-      "home_pitcher": "Tomoyuki Sugano",
-      "away_pitcher": "Eduardo Rodriguez",
-      "venue": "Coors Field",
-      "home_prob_model": 39.6,
-      "away_prob_model": 60.4,
-      "has_model_prediction": true
-    },
     {
       "id": 822737,
       "sport": "MLB",
@@ -278,24 +236,6 @@
     },
     {
       "sport": "MLB",
-      "game": "Arizona Diamondbacks @ Colorado Rockies",
-      "home": "Colorado Rockies",
-      "away": "Arizona Diamondbacks",
-      "pick": "Arizona Diamondbacks",
-      "side": "away",
-      "start_time": "03:10 PM",
-      "model_prob": 60.4,
-      "estimated_implied_prob": 58.8,
-      "edge": 1.6,
-      "confidence": 25.5,
-      "tier": "solido",
-      "tier_label": "⭐ Sólido",
-      "estimated_odds": -143,
-      "home_pitcher": "Tomoyuki Sugano",
-      "away_pitcher": "Eduardo Rodriguez"
-    },
-    {
-      "sport": "MLB",
       "game": "Boston Red Sox @ Atlanta Braves",
       "home": "Atlanta Braves",
       "away": "Boston Red Sox",
@@ -332,24 +272,6 @@
     },
     {
       "sport": "MLB",
-      "game": "Kansas City Royals @ St. Louis Cardinals",
-      "home": "St. Louis Cardinals",
-      "away": "Kansas City Royals",
-      "pick": "St. Louis Cardinals",
-      "side": "home",
-      "start_time": "02:15 PM",
-      "model_prob": 57.1,
-      "estimated_implied_prob": 56.0,
-      "edge": 1.1,
-      "confidence": 17.4,
-      "tier": "valor",
-      "tier_label": "💡 Valor",
-      "estimated_odds": -127,
-      "home_pitcher": "Kyle Leahy",
-      "away_pitcher": "Noah Cameron"
-    },
-    {
-      "sport": "MLB",
       "game": "Chicago Cubs @ Chicago White Sox",
       "home": "Chicago White Sox",
       "away": "Chicago Cubs",
@@ -383,24 +305,6 @@
       "estimated_odds": -124,
       "home_pitcher": "Cade Cavalli",
       "away_pitcher": "Chris Bassitt"
-    },
-    {
-      "sport": "MLB",
-      "game": "Toronto Blue Jays @ Detroit Tigers",
-      "home": "Detroit Tigers",
-      "away": "Toronto Blue Jays",
-      "pick": "Detroit Tigers",
-      "side": "home",
-      "start_time": "01:10 PM",
-      "model_prob": 53.7,
-      "estimated_implied_prob": 53.1,
-      "edge": 0.6,
-      "confidence": 9.1,
-      "tier": "watch",
-      "tier_label": "👀 Watch",
-      "estimated_odds": -113,
-      "home_pitcher": "Casey Mize",
-      "away_pitcher": "Mason Fluharty"
     },
     {
       "sport": "MLB",
@@ -478,12 +382,12 @@
           "tier": "solido"
         },
         {
-          "pick": "Arizona Diamondbacks",
-          "game": "Arizona Diamondbacks @ Colorado Rockies",
+          "pick": "Atlanta Braves",
+          "game": "Boston Red Sox @ Atlanta Braves",
           "tier": "solido"
         }
       ],
-      "probability": 14.1
+      "probability": 13.8
     },
     "agresivo": {
       "legs": [
@@ -503,11 +407,6 @@
           "tier": "solido"
         },
         {
-          "pick": "Arizona Diamondbacks",
-          "game": "Arizona Diamondbacks @ Colorado Rockies",
-          "tier": "solido"
-        },
-        {
           "pick": "Atlanta Braves",
           "game": "Boston Red Sox @ Atlanta Braves",
           "tier": "solido"
@@ -516,9 +415,14 @@
           "pick": "Milwaukee Brewers",
           "game": "Milwaukee Brewers @ Minnesota Twins",
           "tier": "solido"
+        },
+        {
+          "pick": "Chicago Cubs",
+          "game": "Chicago Cubs @ Chicago White Sox",
+          "tier": "valor"
         }
       ],
-      "probability": 4.9
+      "probability": 4.6
     }
   }
 }
