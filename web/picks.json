@@ -1,57 +1,15 @@
 {
-  "generated_at": "2026-05-16T18:34:15.029798-04:00",
+  "generated_at": "2026-05-16T19:51:47.743660-04:00",
   "date_display": "16/05/2026",
   "summary": {
-    "total_games_mlb": 12,
+    "total_games_mlb": 9,
     "total_games_nba": 0,
-    "total_picks": 9,
+    "total_picks": 6,
     "sports_active": [
       "MLB"
     ]
   },
   "games": [
-    {
-      "id": 822737,
-      "sport": "MLB",
-      "home": "Washington Nationals",
-      "away": "Baltimore Orioles",
-      "start_time": "04:05 PM",
-      "start_time_iso": "2026-05-16T16:05:00-04:00",
-      "home_pitcher": "Cade Cavalli",
-      "away_pitcher": "Chris Bassitt",
-      "venue": "Nationals Park",
-      "home_prob_model": 56.2,
-      "away_prob_model": 43.8,
-      "has_model_prediction": true
-    },
-    {
-      "id": 823382,
-      "sport": "MLB",
-      "home": "Pittsburgh Pirates",
-      "away": "Philadelphia Phillies",
-      "start_time": "04:05 PM",
-      "start_time_iso": "2026-05-16T16:05:00-04:00",
-      "home_pitcher": "Bubba Chandler",
-      "away_pitcher": "Cristopher Sánchez",
-      "venue": "PNC Park",
-      "home_prob_model": 52.3,
-      "away_prob_model": 47.7,
-      "has_model_prediction": true
-    },
-    {
-      "id": 822981,
-      "sport": "MLB",
-      "home": "Tampa Bay Rays",
-      "away": "Miami Marlins",
-      "start_time": "04:10 PM",
-      "start_time_iso": "2026-05-16T16:10:00-04:00",
-      "home_pitcher": "Nick Martinez",
-      "away_pitcher": "Sandy Alcantara",
-      "venue": "Tropicana Field",
-      "home_prob_model": 61.0,
-      "away_prob_model": 39.0,
-      "has_model_prediction": true
-    },
     {
       "id": 824435,
       "sport": "MLB",
@@ -218,24 +176,6 @@
     },
     {
       "sport": "MLB",
-      "game": "Miami Marlins @ Tampa Bay Rays",
-      "home": "Tampa Bay Rays",
-      "away": "Miami Marlins",
-      "pick": "Tampa Bay Rays",
-      "side": "home",
-      "start_time": "04:10 PM",
-      "model_prob": 61.0,
-      "estimated_implied_prob": 59.4,
-      "edge": 1.6,
-      "confidence": 26.9,
-      "tier": "solido",
-      "tier_label": "⭐ Sólido",
-      "estimated_odds": -146,
-      "home_pitcher": "Nick Martinez",
-      "away_pitcher": "Sandy Alcantara"
-    },
-    {
-      "sport": "MLB",
       "game": "Boston Red Sox @ Atlanta Braves",
       "home": "Atlanta Braves",
       "away": "Boston Red Sox",
@@ -290,24 +230,6 @@
     },
     {
       "sport": "MLB",
-      "game": "Baltimore Orioles @ Washington Nationals",
-      "home": "Washington Nationals",
-      "away": "Baltimore Orioles",
-      "pick": "Washington Nationals",
-      "side": "home",
-      "start_time": "04:05 PM",
-      "model_prob": 56.2,
-      "estimated_implied_prob": 55.3,
-      "edge": 0.9,
-      "confidence": 15.2,
-      "tier": "valor",
-      "tier_label": "💡 Valor",
-      "estimated_odds": -124,
-      "home_pitcher": "Cade Cavalli",
-      "away_pitcher": "Chris Bassitt"
-    },
-    {
-      "sport": "MLB",
       "game": "San Francisco Giants @ Athletics",
       "home": "Athletics",
       "away": "San Francisco Giants",
@@ -323,24 +245,6 @@
       "estimated_odds": -113,
       "home_pitcher": "Luis Severino",
       "away_pitcher": "Trevor McDonald"
-    },
-    {
-      "sport": "MLB",
-      "game": "Philadelphia Phillies @ Pittsburgh Pirates",
-      "home": "Pittsburgh Pirates",
-      "away": "Philadelphia Phillies",
-      "pick": "Pittsburgh Pirates",
-      "side": "home",
-      "start_time": "04:05 PM",
-      "model_prob": 52.3,
-      "estimated_implied_prob": 52.0,
-      "edge": 0.3,
-      "confidence": 5.6,
-      "tier": "watch",
-      "tier_label": "👀 Watch",
-      "estimated_odds": -108,
-      "home_pitcher": "Bubba Chandler",
-      "away_pitcher": "Cristopher Sánchez"
     }
   ],
   "parlays": {
@@ -357,12 +261,12 @@
           "tier": "solido"
         },
         {
-          "pick": "Tampa Bay Rays",
-          "game": "Miami Marlins @ Tampa Bay Rays",
+          "pick": "Atlanta Braves",
+          "game": "Boston Red Sox @ Atlanta Braves",
           "tier": "solido"
         }
       ],
-      "probability": 23.4
+      "probability": 22.7
     },
     "balanceado": {
       "legs": [
@@ -377,36 +281,6 @@
           "tier": "solido"
         },
         {
-          "pick": "Tampa Bay Rays",
-          "game": "Miami Marlins @ Tampa Bay Rays",
-          "tier": "solido"
-        },
-        {
-          "pick": "Atlanta Braves",
-          "game": "Boston Red Sox @ Atlanta Braves",
-          "tier": "solido"
-        }
-      ],
-      "probability": 13.8
-    },
-    "agresivo": {
-      "legs": [
-        {
-          "pick": "Los Angeles Dodgers",
-          "game": "Los Angeles Dodgers @ Los Angeles Angels",
-          "tier": "premium"
-        },
-        {
-          "pick": "Seattle Mariners",
-          "game": "San Diego Padres @ Seattle Mariners",
-          "tier": "solido"
-        },
-        {
-          "pick": "Tampa Bay Rays",
-          "game": "Miami Marlins @ Tampa Bay Rays",
-          "tier": "solido"
-        },
-        {
           "pick": "Atlanta Braves",
           "game": "Boston Red Sox @ Atlanta Braves",
           "tier": "solido"
@@ -415,14 +289,9 @@
           "pick": "Milwaukee Brewers",
           "game": "Milwaukee Brewers @ Minnesota Twins",
           "tier": "solido"
-        },
-        {
-          "pick": "Chicago Cubs",
-          "game": "Chicago Cubs @ Chicago White Sox",
-          "tier": "valor"
         }
       ],
-      "probability": 4.6
+      "probability": 13.3
     }
   }
 }
