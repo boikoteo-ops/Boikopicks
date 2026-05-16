@@ -77,30 +77,35 @@ def run_pipeline():
     print(f"\n✓ Picks guardados en: {output_path}")
 
     # ─── Imprimir resumen ───
+   # ─── Imprimir resumen ───
     if picks:
+        # Agrupar picks por tier
+        by_tier = {'premium': [], 'solido': [], 'valor': [], 'watch': []}
+        for p in picks:
+            by_tier[p['tier']].append(p)
+
         print("\n" + "=" * 60)
-        print("TOP PICKS DE HOY")
+        print(f"PICKS DE HOY ({len(picks)} en total)")
         print("=" * 60)
-        for i, p in enumerate(picks[:5], 1):
-            print(f"\n#{i}  [{p['sport']}] {p['pick']}")
-            print(f"     {p['game']} — {p['start_time']}")
-            print(f"     Modelo: {p['model_prob']}% | Edge: +{p['edge']}% | Confianza: {p['confidence']}")
-            print(f"     Cuota estimada: {p['estimated_odds']:+d}" if p['estimated_odds'] else "")
+
+        for tier_key, tier_emoji in [('premium', '🔥 PREMIUM'), ('solido', '⭐ SÓLIDO'),
+                                       ('valor', '💡 VALOR'), ('watch', '👀 WATCH')]:
+            tier_picks = by_tier[tier_key]
+            if not tier_picks:
+                continue
+            print(f"\n── {tier_emoji} ({len(tier_picks)}) ──")
+            for p in tier_picks:
+                print(f"  [{p['sport']}] {p['pick']:.<35} {p['model_prob']}% | edge +{p['edge']}% | conf {p['confidence']}")
+                print(f"       {p['game']} ({p['start_time']})")
 
         if parlays:
             print("\n" + "=" * 60)
             print("PARLEYS SUGERIDOS")
             print("=" * 60)
             for nombre, parlay in parlays.items():
-                print(f"\n{nombre.upper()} ({len(parlay['legs'])} patas):")
+                print(f"\n{nombre.upper()} ({len(parlay['legs'])} patas) — prob. {parlay['probability']}%:")
                 for leg in parlay['legs']:
-                    print(f"  • {leg['pick']}")
-                print(f"  Probabilidad: {parlay['probability']}%")
-    else:
-        print("\n⚠ No se generaron picks. Posibles razones:")
-        print("  - No hay juegos hoy")
-        print("  - Las fuentes están caídas")
-        print("  - Los favoritos no alcanzan el umbral mínimo de confianza")
+                    print(f"  • {leg['pick']} [{leg['tier']}]")
 
     return output
 

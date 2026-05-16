@@ -73,15 +73,15 @@ def merge_game_data(schedule_games, model_predictions):
     return merged
 
 
-def generate_picks(games, min_edge=1.5, min_model_prob=55.0):
+def generate_picks(games, min_model_prob=52.0):
     """
-    Genera lista de picks recomendados.
+    Genera lista completa de picks recomendados, clasificados por confianza.
 
-    Parámetros:
-    - min_edge: diferencia mínima entre prob modelo vs implícita del mercado (%)
-    - min_model_prob: probabilidad mínima del modelo para considerar el pick
-
-    Retorna lista de picks ordenados por score de confianza.
+    Tiers de confianza:
+    - 🔥 Premium  (modelo ≥62% y edge ≥1.8%)
+    - ⭐ Sólido   (modelo ≥58% y edge ≥1.2%)
+    - 💡 Valor    (modelo ≥55% y edge ≥0.8%)
+    - 👀 Watch    (modelo ≥52%, sin edge claro)
     """
     picks = []
 
@@ -92,7 +92,6 @@ def generate_picks(games, min_edge=1.5, min_model_prob=55.0):
         home_prob = game['home_prob_model']
         away_prob = game['away_prob_model']
 
-        # Identificar el lado favorito del modelo
         if home_prob >= away_prob:
             model_pick = game['home']
             model_prob = home_prob
@@ -105,27 +104,34 @@ def generate_picks(games, min_edge=1.5, min_model_prob=55.0):
         if model_prob < min_model_prob:
             continue
 
-       # Estimar cuota implícita del mercado.
-        # Los libros típicamente le quitan 4-6% al "true probability".
-        # Asumimos vig de 5% promedio: la implícita publicada es ~95% de la real.
-        # Convertido: si modelo dice 60%, libro publica ~57% implícita
-        #   (porque modelo es "lo que crees que pasará" y mercado tiene margen).
-        # Fórmula calibrada: market_implied = model_prob - (model_prob - 50) * 0.15
-        # Esto da edges de 2-5% para favoritos claros, que es lo realista.
+        # Estimar implícita del mercado (vig promedio ~5%)
         market_juice = (model_prob - 50) * 0.15
         estimated_market_prob = model_prob - market_juice
         edge = model_prob - estimated_market_prob
 
-        if edge < min_edge:
-            continue
+        # Clasificar por tier
+        if model_prob >= 62 and edge >= 1.8:
+            tier = 'premium'
+            tier_label = '🔥 Premium'
+        elif model_prob >= 58 and edge >= 1.2:
+            tier = 'solido'
+            tier_label = '⭐ Sólido'
+        elif model_prob >= 55 and edge >= 0.8:
+            tier = 'valor'
+            tier_label = '💡 Valor'
+        else:
+            tier = 'watch'
+            tier_label = '👀 Watch'
 
-        # Score de confianza: combina probabilidad y edge
+        # Score de confianza (0-100)
         confidence = (model_prob - 50) * 2 + edge * 3
         confidence = max(0, min(100, round(confidence, 1)))
 
         picks.append({
             'sport': game['sport'],
             'game': f"{game['away']} @ {game['home']}",
+            'home': game['home'],
+            'away': game['away'],
             'pick': model_pick,
             'side': side,
             'start_time': game.get('start_time', 'TBD'),
@@ -133,53 +139,55 @@ def generate_picks(games, min_edge=1.5, min_model_prob=55.0):
             'estimated_implied_prob': round(estimated_market_prob, 1),
             'edge': round(edge, 1),
             'confidence': confidence,
+            'tier': tier,
+            'tier_label': tier_label,
             'estimated_odds': implied_prob_to_american_odds(estimated_market_prob),
             'home_pitcher': game.get('home_pitcher'),
             'away_pitcher': game.get('away_pitcher'),
         })
 
-    # Ordenar por score de confianza descendente
     picks.sort(key=lambda x: x['confidence'], reverse=True)
     return picks
 
 
 def suggest_parlays(picks):
     """
-    Sugiere 3 parleys: conservador (3), balanceado (4), agresivo (6).
-    Toma los picks de mayor confianza.
+    Sugiere parleys solo con picks de tier premium/sólido/valor.
     """
-    if len(picks) < 3:
+    quality_picks = [p for p in picks if p['tier'] in ('premium', 'solido', 'valor')]
+
+    if len(quality_picks) < 3:
         return {}
 
     parlays = {}
 
-    if len(picks) >= 3:
-        conservative = picks[:3]
+    if len(quality_picks) >= 3:
+        conservative = quality_picks[:3]
         prob = 1
         for p in conservative:
             prob *= (p['model_prob'] / 100)
         parlays['conservador'] = {
-            'legs': [{'pick': p['pick'], 'game': p['game']} for p in conservative],
+            'legs': [{'pick': p['pick'], 'game': p['game'], 'tier': p['tier']} for p in conservative],
             'probability': round(prob * 100, 1),
         }
 
-    if len(picks) >= 4:
-        balanced = picks[:4]
+    if len(quality_picks) >= 4:
+        balanced = quality_picks[:4]
         prob = 1
         for p in balanced:
             prob *= (p['model_prob'] / 100)
         parlays['balanceado'] = {
-            'legs': [{'pick': p['pick'], 'game': p['game']} for p in balanced],
+            'legs': [{'pick': p['pick'], 'game': p['game'], 'tier': p['tier']} for p in balanced],
             'probability': round(prob * 100, 1),
         }
 
-    if len(picks) >= 6:
-        aggressive = picks[:6]
+    if len(quality_picks) >= 6:
+        aggressive = quality_picks[:6]
         prob = 1
         for p in aggressive:
             prob *= (p['model_prob'] / 100)
         parlays['agresivo'] = {
-            'legs': [{'pick': p['pick'], 'game': p['game']} for p in aggressive],
+            'legs': [{'pick': p['pick'], 'game': p['game'], 'tier': p['tier']} for p in aggressive],
             'probability': round(prob * 100, 1),
         }
 
