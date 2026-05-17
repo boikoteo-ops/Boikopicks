@@ -104,6 +104,51 @@ html, body {
   margin-top: 2px;
 }
 
+.hist-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, rgba(0, 212, 170, 0.08), rgba(58, 134, 255, 0.05));
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+}
+
+.hist-item {
+  text-align: center;
+  padding: 4px;
+}
+
+.hist-label {
+  font-size: 10px;
+  color: var(--text-secondary);
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+.hist-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.hist-value.positive {
+  color: var(--accent-green);
+}
+
+.hist-value.negative {
+  color: var(--accent-red);
+}
+
+.hist-sub {
+  font-size: 10px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -406,5 +451,6 @@ html, body {
 @media (max-width: 480px) {
   .pick-team-name { font-size: 13px; }
   .stat-value { font-size: 20px; }
+  .hist-value { font-size: 18px; }
   .container { padding: 12px; }
 }

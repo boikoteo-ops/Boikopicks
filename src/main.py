@@ -11,6 +11,14 @@ from src.fetchers.nba_schedule import get_nba_games_today
 from src.fetchers.fanduel_odds import get_fanduel_predictions
 from src.fetchers.covers_consensus import get_covers_consensus
 from src.engine.consensus import merge_game_data, generate_picks, suggest_parlays
+from src.engine.stats import get_summary
+from src.verify_picks import (
+    load_history,
+    save_history,
+    add_todays_picks_to_tracking,
+    verify_picks_for_date,
+)
+from datetime import timedelta
 
 
 def run_pipeline():
@@ -24,17 +32,17 @@ def run_pipeline():
     print("=" * 60)
 
     # 1. Schedule MLB
-    print("\n[1/4] Obteniendo cartelera MLB...")
+    print("\n[1/5] Obteniendo cartelera MLB...")
     mlb_games = get_mlb_games_today()
     print(f"      Juegos MLB hoy: {len(mlb_games)}")
 
     # 2. Schedule NBA
-    print("\n[2/4] Obteniendo cartelera NBA...")
+    print("\n[2/5] Obteniendo cartelera NBA...")
     nba_games = get_nba_games_today()
     print(f"      Juegos NBA hoy: {len(nba_games)}")
 
-    # 3. Predicciones de fuentes
-    print("\n[3/4] Obteniendo predicciones de fuentes...")
+    # 3. Predicciones
+    print("\n[3/5] Obteniendo predicciones de fuentes...")
 
     print("  numberFire (FanDuel)...")
     mlb_numberfire = get_fanduel_predictions('mlb')
@@ -47,7 +55,7 @@ def run_pipeline():
     print(f"    MLB: {len(mlb_covers)} | NBA: {len(nba_covers)}")
 
     # 4. Cruce y picks
-    print("\n[4/4] Cruzando datos y generando picks...")
+    print("\n[4/5] Cruzando datos y generando picks...")
 
     mlb_merged = merge_game_data(mlb_games, mlb_numberfire, mlb_covers)
     nba_merged = merge_game_data(nba_games, nba_numberfire, nba_covers)
@@ -60,7 +68,7 @@ def run_pipeline():
     print(f"      Total juegos analizados: {len(all_games)}")
     print(f"      Picks recomendados: {len(picks)}")
 
-    # Output
+    # Guardar primero el picks.json sin stats (necesario para que verify_picks lo lea)
     output = {
         'generated_at': now.isoformat(),
         'date_display': now.strftime('%d/%m/%Y'),
@@ -76,13 +84,33 @@ def run_pipeline():
         'parlays': parlays,
     }
 
-    # Guardar
     os.makedirs('output', exist_ok=True)
-    output_path = 'output/picks.json'
-    with open(output_path, 'w', encoding='utf-8') as f:
+    with open('output/picks.json', 'w', encoding='utf-8') as f:
         json.dump(output, f, indent=2, ensure_ascii=False)
 
-    print(f"\nPicks guardados en: {output_path}")
+    # 5. Tracking y stats
+    print("\n[5/5] Tracking y stats...")
+    history = load_history()
+    history = add_todays_picks_to_tracking(history)
+
+    # Verificar dias anteriores
+    yesterday_str = (now - timedelta(days=1)).strftime('%Y-%m-%d')
+    day_before_str = (now - timedelta(days=2)).strftime('%Y-%m-%d')
+    history = verify_picks_for_date(history, yesterday_str)
+    history = verify_picks_for_date(history, day_before_str)
+
+    history['last_update'] = now.isoformat()
+    save_history(history)
+
+    stats = get_summary(history)
+
+    # Reescribir picks.json con stats incluidas
+    output['stats'] = stats
+    with open('output/picks.json', 'w', encoding='utf-8') as f:
+        json.dump(output, f, indent=2, ensure_ascii=False)
+
+    print(f"\nPicks guardados en: output/picks.json")
+    print(f"Historial guardado en: output/history.json")
 
     # Resumen
     if picks:
@@ -103,22 +131,23 @@ def run_pipeline():
             for p in tier_picks:
                 agree_mark = ''
                 if p.get('sources_agree') is True:
-                    agree_mark = ' [2/2 fuentes]'
+                    agree_mark = ' [2/2]'
                 elif p.get('sources_agree') is False:
-                    agree_mark = ' [fuentes disienten]'
-                elif p.get('sources_count', 0) == 1:
-                    agree_mark = ' [1/2 fuentes]'
+                    agree_mark = ' [disienten]'
                 print(f"  [{p['sport']}] {p['pick']:.<32} {p['model_prob']}% | edge +{p['edge']}% | conf {p['confidence']}{agree_mark}")
-                print(f"       {p['game']} ({p['start_time']})")
 
-        if parlays:
-            print("\n" + "=" * 60)
-            print("PARLEYS SUGERIDOS")
-            print("=" * 60)
-            for nombre, parlay in parlays.items():
-                print(f"\n{nombre.upper()} ({len(parlay['legs'])} patas) - prob. {parlay['probability']}%:")
-                for leg in parlay['legs']:
-                    print(f"  - {leg['pick']} [{leg['tier']}]")
+        print(f"\n{'=' * 60}")
+        print(f"STATS HISTORICAS")
+        print(f"{'=' * 60}")
+        overall = stats['overall']
+        print(f"Total rastreado: {overall['total']} picks")
+        print(f"Verificados:     {overall['verified']}")
+        if overall['verified'] > 0:
+            print(f"  Win rate: {overall['win_rate']}%")
+            print(f"  ROI:      {overall['roi']}% ({overall['profit_units']:+.2f}u)")
+            if overall['streak'] > 0:
+                print(f"  Racha:    {overall['streak']}{(overall['streak_type'] or '')[0].upper()}")
+        print(f"Pendientes:      {overall['pending']}")
     else:
         print("\nNo se generaron picks.")
 

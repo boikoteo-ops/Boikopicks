@@ -64,6 +64,34 @@ function renderStats(data) {
   document.getElementById('statGames').textContent = totalGames;
   document.getElementById('statPicks').textContent = totalPicks;
   document.getElementById('statPremium').textContent = premium;
+
+  // Stats historicas
+  const stats = data.stats?.overall;
+  if (!stats || stats.verified === 0) {
+    document.getElementById('histRecord').textContent = '—';
+    document.getElementById('histWinRate').textContent = 'Sin datos aún';
+    document.getElementById('histRoi').textContent = '—';
+    document.getElementById('histStreak').textContent = '—';
+    return;
+  }
+
+  document.getElementById('histRecord').textContent = `${stats.wins}-${stats.losses}`;
+  document.getElementById('histWinRate').textContent = `${stats.win_rate}% acierto`;
+  
+  const roiEl = document.getElementById('histRoi');
+  const roiSign = stats.roi >= 0 ? '+' : '';
+  roiEl.textContent = `${roiSign}${stats.roi}%`;
+  roiEl.className = 'hist-value ' + (stats.roi >= 0 ? 'positive' : 'negative');
+
+  const streakEl = document.getElementById('histStreak');
+  if (stats.streak > 0 && stats.streak_type) {
+    const letter = stats.streak_type === 'win' ? 'W' : 'L';
+    streakEl.textContent = `${stats.streak}${letter}`;
+    streakEl.className = 'hist-value ' + (stats.streak_type === 'win' ? 'positive' : 'negative');
+  } else {
+    streakEl.textContent = '—';
+    streakEl.className = 'hist-value';
+  }
 }
 
 function renderPicks(data) {
