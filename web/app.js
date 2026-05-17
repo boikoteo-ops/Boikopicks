@@ -99,6 +99,29 @@ function renderPicks(data) {
   container.innerHTML = html;
 }
 
+function renderSourcesBadge(pick) {
+  const count = pick.sources_count || 0;
+  const total = pick.sources_total || 2;
+  const agree = pick.sources_agree;
+
+  if (count === 0) return '';
+
+  let className = 'sources-badge';
+  let label = `${count}/${total} fuentes`;
+
+  if (agree === true) {
+    className += ' sources-agree';
+    label = `${count}/${total} ✓`;
+  } else if (agree === false) {
+    className += ' sources-disagree';
+    label = `${count}/${total} ⚠`;
+  } else if (count === 1) {
+    className += ' sources-partial';
+  }
+
+  return `<span class="${className}">${label}</span>`;
+}
+
 function renderPickCard(pick) {
   const pickTeamInfo = getTeamInfo(pick.pick);
   const otherTeam = pick.pick === pick.home ? pick.away : pick.home;
@@ -134,6 +157,7 @@ function renderPickCard(pick) {
         <span class="pick-stat highlight"><strong>${pick.model_prob}%</strong> modelo</span>
         <span class="pick-stat">edge <strong>+${pick.edge}%</strong></span>
         <span class="pick-stat">conf <strong>${pick.confidence}</strong></span>
+        ${renderSourcesBadge(pick)}
       </div>
     </div>
   `;

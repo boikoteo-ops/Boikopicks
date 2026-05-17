@@ -265,6 +265,7 @@ html, body {
   gap: 12px;
   font-size: 11px;
   flex-wrap: wrap;
+  align-items: center;
 }
 
 .pick-stat {
@@ -277,6 +278,34 @@ html, body {
 
 .pick-stat.highlight strong {
   color: var(--accent-green);
+}
+
+.sources-badge {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  margin-left: auto;
+}
+
+.sources-badge.sources-agree {
+  background: rgba(0, 212, 170, 0.15);
+  color: var(--accent-green);
+  border: 1px solid var(--accent-green);
+}
+
+.sources-badge.sources-disagree {
+  background: rgba(255, 71, 87, 0.15);
+  color: var(--accent-red);
+  border: 1px solid var(--accent-red);
+}
+
+.sources-badge.sources-partial {
+  background: rgba(255, 184, 0, 0.15);
+  color: var(--accent-amber);
 }
 
 .tier-badge {
