@@ -128,7 +128,7 @@ function renderPicks(data) {
 
 function renderSourcesBadge(pick) {
   const count = pick.sources_count || 0;
-  const total = pick.sources_total || 3;
+  const total = pick.sources_total || 4;
   const agree = pick.sources_agree;
   const unanimous = pick.sources_unanimous;
 
@@ -137,7 +137,11 @@ function renderSourcesBadge(pick) {
   let className = 'sources-badge';
   let label = `${count}/${total}`;
 
-  if (unanimous && count >= 2) {
+  // 4/4 con acuerdo total: nivel maximo
+  if (count === 4 && agree === true) {
+    className += ' sources-supreme';
+    label += ' ✓✓✓';
+  } else if (unanimous && count >= 3) {
     className += ' sources-unanimous';
     label += ' ✓✓';
   } else if (agree === true) {
@@ -159,6 +163,11 @@ function renderPickswiseBadge(pick) {
   const isBestBet = pick.pickswise_confidence === 5;
   const className = isBestBet ? 'pickswise-badge best-bet' : 'pickswise-badge';
   return `<span class="${className}" title="Pickswise confianza ${pick.pickswise_confidence}/5">${stars}</span>`;
+}
+
+function renderDratingsBadge(pick) {
+  if (!pick.has_dratings || !pick.dratings_prob) return '';
+  return `<span class="dratings-badge" title="DRatings probabilidad">DR ${pick.dratings_prob}%</span>`;
 }
 
 function renderPickCard(pick) {
@@ -197,6 +206,7 @@ function renderPickCard(pick) {
         <span class="pick-stat">edge <strong>+${pick.edge}%</strong></span>
         <span class="pick-stat">conf <strong>${pick.confidence}</strong></span>
         ${renderPickswiseBadge(pick)}
+        ${renderDratingsBadge(pick)}
         ${renderSourcesBadge(pick)}
       </div>
     </div>

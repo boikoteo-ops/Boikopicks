@@ -1,11 +1,10 @@
 """
-Motor de consenso: combina schedule + numberFire + Covers + Pickswise (opcional)
-para generar picks con score de confianza y acuerdo entre fuentes.
+Motor de consenso: combina schedule + numberFire + Covers + Pickswise + DRatings.
+Genera picks con score de confianza y acuerdo entre fuentes.
 """
 
 
 def american_odds_to_implied_prob(odds):
-    """Convierte cuotas americanas a probabilidad implicita."""
     if odds is None:
         return None
     if odds < 0:
@@ -15,7 +14,6 @@ def american_odds_to_implied_prob(odds):
 
 
 def implied_prob_to_american_odds(prob):
-    """Convierte probabilidad (%) a cuota americana aproximada."""
     if prob is None or prob <= 0 or prob >= 100:
         return None
     p = prob / 100
@@ -39,20 +37,23 @@ def _teams_match(name1, name2):
     return n1 == n2 or n1 in n2 or n2 in n1
 
 
-def merge_game_data(schedule_games, numberfire_predictions, covers_predictions, pickswise_predictions=None):
+def merge_game_data(schedule_games, numberfire_predictions, covers_predictions,
+                     pickswise_predictions=None, dratings_predictions=None):
     """
-    Combina juegos del schedule con predicciones de numberFire + Covers + Pickswise.
-    pickswise_predictions es opcional (puede ser None o lista vacia).
+    Combina juegos del schedule con predicciones de 4 fuentes.
+    pickswise y dratings son opcionales.
     """
     if pickswise_predictions is None:
         pickswise_predictions = []
+    if dratings_predictions is None:
+        dratings_predictions = []
 
     merged = []
 
     for game in schedule_games:
         enriched = dict(game)
 
-        # numberFire (modelo estadistico)
+        # numberFire
         enriched['home_prob_numberfire'] = None
         enriched['away_prob_numberfire'] = None
         enriched['has_numberfire'] = False
@@ -65,11 +66,9 @@ def merge_game_data(schedule_games, numberfire_predictions, covers_predictions, 
                 enriched['has_numberfire'] = True
                 break
 
-        # Covers (sentiment del publico)
+        # Covers
         enriched['home_pct_covers'] = None
         enriched['away_pct_covers'] = None
-        enriched['covers_odds_home'] = None
-        enriched['covers_odds_away'] = None
         enriched['has_covers'] = False
 
         for pred in covers_predictions:
@@ -77,12 +76,10 @@ def merge_game_data(schedule_games, numberfire_predictions, covers_predictions, 
                 _teams_match(game['away'], pred['away'])):
                 enriched['home_pct_covers'] = pred['home_pct_public']
                 enriched['away_pct_covers'] = pred['away_pct_public']
-                enriched['covers_odds_home'] = pred.get('home_odds')
-                enriched['covers_odds_away'] = pred.get('away_odds')
                 enriched['has_covers'] = True
                 break
 
-        # Pickswise (handicappers humanos)
+        # Pickswise
         enriched['home_prob_pickswise'] = None
         enriched['away_prob_pickswise'] = None
         enriched['pickswise_confidence'] = None
@@ -99,7 +96,26 @@ def merge_game_data(schedule_games, numberfire_predictions, covers_predictions, 
                 enriched['has_pickswise'] = True
                 break
 
-        # Calcular probabilidad promedio
+        # DRatings (NUEVA 4ta fuente)
+        enriched['home_prob_dratings'] = None
+        enriched['away_prob_dratings'] = None
+        enriched['dratings_total_runs'] = None
+        enriched['dratings_home_runs'] = None
+        enriched['dratings_away_runs'] = None
+        enriched['has_dratings'] = False
+
+        for pred in dratings_predictions:
+            if (_teams_match(game['home'], pred['home']) and
+                _teams_match(game['away'], pred['away'])):
+                enriched['home_prob_dratings'] = pred['home_prob']
+                enriched['away_prob_dratings'] = pred['away_prob']
+                enriched['dratings_total_runs'] = pred.get('total_runs')
+                enriched['dratings_home_runs'] = pred.get('home_runs_expected')
+                enriched['dratings_away_runs'] = pred.get('away_runs_expected')
+                enriched['has_dratings'] = True
+                break
+
+        # Promedio de las fuentes disponibles
         sources_count = 0
         home_prob_sum = 0
         away_prob_sum = 0
@@ -119,6 +135,11 @@ def merge_game_data(schedule_games, numberfire_predictions, covers_predictions, 
             away_prob_sum += enriched['away_prob_pickswise']
             sources_count += 1
 
+        if enriched['has_dratings']:
+            home_prob_sum += enriched['home_prob_dratings']
+            away_prob_sum += enriched['away_prob_dratings']
+            sources_count += 1
+
         if sources_count > 0:
             enriched['home_prob_model'] = round(home_prob_sum / sources_count, 1)
             enriched['away_prob_model'] = round(away_prob_sum / sources_count, 1)
@@ -129,7 +150,7 @@ def merge_game_data(schedule_games, numberfire_predictions, covers_predictions, 
             enriched['has_model_prediction'] = False
 
         enriched['sources_count'] = sources_count
-        enriched['sources_total'] = 3  # max posible
+        enriched['sources_total'] = 4  # max posible ahora
 
         # Acuerdo entre fuentes (cuantas pickean al mismo equipo)
         if sources_count >= 2:
@@ -150,10 +171,14 @@ def merge_game_data(schedule_games, numberfire_predictions, covers_predictions, 
                     picks_home += 1
                 else:
                     picks_away += 1
+            if enriched['has_dratings']:
+                if enriched['home_prob_dratings'] > enriched['away_prob_dratings']:
+                    picks_home += 1
+                else:
+                    picks_away += 1
 
-            # Todas coinciden si una direccion tiene todos los votos
             enriched['sources_agree'] = (picks_home == sources_count or picks_away == sources_count)
-            enriched['sources_unanimous'] = enriched['sources_agree'] and sources_count >= 2
+            enriched['sources_unanimous'] = enriched['sources_agree'] and sources_count >= 3
         else:
             enriched['sources_agree'] = None
             enriched['sources_unanimous'] = False
@@ -204,19 +229,28 @@ def generate_picks(games, min_model_prob=52.0):
             tier = 'watch'
             tier_label = 'Watch'
 
-        # Ajuste segun consenso de fuentes
+        # Ajuste segun consenso
         sources_count = game.get('sources_count', 0)
         sources_agree = game.get('sources_agree')
+        sources_unanimous = game.get('sources_unanimous', False)
 
-        # Si 3 fuentes y todas coinciden: bonus de tier
-        if sources_count == 3 and sources_agree is True:
+        # Bonus tier si 4/4 coinciden
+        if sources_count == 4 and sources_agree is True:
             if tier == 'solido':
                 tier = 'premium'
                 tier_label = 'Premium'
             elif tier == 'valor':
                 tier = 'solido'
                 tier_label = 'Solido'
-        # Si fuentes disienten: penalizacion
+        # Bonus tier si 3/3 coinciden
+        elif sources_count == 3 and sources_agree is True:
+            if tier == 'solido':
+                tier = 'premium'
+                tier_label = 'Premium'
+            elif tier == 'valor':
+                tier = 'solido'
+                tier_label = 'Solido'
+        # Penalizacion si disienten
         elif sources_agree is False:
             if tier == 'premium':
                 tier = 'solido'
@@ -230,10 +264,12 @@ def generate_picks(games, min_model_prob=52.0):
 
         # Confianza
         confidence = (model_prob - 50) * 2 + edge * 3
-        if sources_agree is True and sources_count == 3:
-            confidence += 10  # bonus por 3/3
+        if sources_agree is True and sources_count == 4:
+            confidence += 15  # bonus extra por 4/4
+        elif sources_agree is True and sources_count == 3:
+            confidence += 10
         elif sources_agree is True and sources_count == 2:
-            confidence += 5   # bonus por 2/2
+            confidence += 5
         elif sources_agree is False:
             confidence -= 10
         confidence = max(0, min(100, round(confidence, 1)))
@@ -256,7 +292,7 @@ def generate_picks(games, min_model_prob=52.0):
             'home_pitcher': game.get('home_pitcher'),
             'away_pitcher': game.get('away_pitcher'),
             'sources_count': game.get('sources_count', 0),
-            'sources_total': game.get('sources_total', 3),
+            'sources_total': game.get('sources_total', 4),
             'sources_agree': game.get('sources_agree'),
             'sources_unanimous': game.get('sources_unanimous', False),
             'numberfire_prob': game.get('home_prob_numberfire') if side == 'home' else game.get('away_prob_numberfire'),
@@ -264,6 +300,12 @@ def generate_picks(games, min_model_prob=52.0):
             'pickswise_prob': game.get('home_prob_pickswise') if side == 'home' else game.get('away_prob_pickswise'),
             'pickswise_confidence': game.get('pickswise_confidence'),
             'has_pickswise': game.get('has_pickswise', False),
+            'dratings_prob': game.get('home_prob_dratings') if side == 'home' else game.get('away_prob_dratings'),
+            'has_dratings': game.get('has_dratings', False),
+            # Datos crudos para Fase 6 futura
+            'dratings_total_runs': game.get('dratings_total_runs'),
+            'dratings_home_runs': game.get('dratings_home_runs'),
+            'dratings_away_runs': game.get('dratings_away_runs'),
         })
 
     picks.sort(key=lambda x: x['confidence'], reverse=True)

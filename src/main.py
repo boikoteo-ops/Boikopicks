@@ -11,6 +11,7 @@ from src.fetchers.nba_schedule import get_nba_games_today
 from src.fetchers.fanduel_odds import get_fanduel_predictions
 from src.fetchers.covers_consensus import get_covers_consensus
 from src.fetchers.pickswise import get_pickswise_picks
+from src.fetchers.dratings import get_dratings_predictions
 from src.engine.consensus import merge_game_data, generate_picks, suggest_parlays
 from src.engine.stats import get_summary
 from src.verify_picks import (
@@ -41,7 +42,7 @@ def run_pipeline():
     nba_games = get_nba_games_today()
     print(f"      Juegos NBA hoy: {len(nba_games)}")
 
-    # 3. Predicciones
+    # 3. Predicciones (4 fuentes)
     print("\n[3/5] Obteniendo predicciones de fuentes...")
 
     print("  numberFire (FanDuel)...")
@@ -59,11 +60,20 @@ def run_pipeline():
     nba_pickswise = get_pickswise_picks('nba')
     print(f"    MLB: {len(mlb_pickswise)} | NBA: {len(nba_pickswise)}")
 
+    print("  DRatings (Elo + ML)...")
+    mlb_dratings = get_dratings_predictions('mlb')
+    nba_dratings = get_dratings_predictions('nba')
+    print(f"    MLB: {len(mlb_dratings)} | NBA: {len(nba_dratings)}")
+
     # 4. Cruce y picks
     print("\n[4/5] Cruzando datos y generando picks...")
 
-    mlb_merged = merge_game_data(mlb_games, mlb_numberfire, mlb_covers, mlb_pickswise)
-    nba_merged = merge_game_data(nba_games, nba_numberfire, nba_covers, nba_pickswise)
+    mlb_merged = merge_game_data(
+        mlb_games, mlb_numberfire, mlb_covers, mlb_pickswise, mlb_dratings
+    )
+    nba_merged = merge_game_data(
+        nba_games, nba_numberfire, nba_covers, nba_pickswise, nba_dratings
+    )
 
     all_games = mlb_merged + nba_merged
 
@@ -73,7 +83,6 @@ def run_pipeline():
     print(f"      Total juegos analizados: {len(all_games)}")
     print(f"      Picks recomendados: {len(picks)}")
 
-    # Guardar picks.json sin stats primero (para verify_picks)
     output = {
         'generated_at': now.isoformat(),
         'date_display': now.strftime('%d/%m/%Y'),
@@ -82,7 +91,7 @@ def run_pipeline():
             'total_games_nba': len(nba_games),
             'total_picks': len(picks),
             'sports_active': [s for s, count in [('MLB', len(mlb_games)), ('NBA', len(nba_games))] if count > 0],
-            'sources_used': ['numberFire', 'Covers Consensus', 'Pickswise'],
+            'sources_used': ['numberFire', 'Covers Consensus', 'Pickswise', 'DRatings'],
         },
         'games': all_games,
         'picks': picks,
@@ -108,7 +117,6 @@ def run_pipeline():
 
     stats = get_summary(history)
 
-    # Reescribir picks.json con stats incluidas
     output['stats'] = stats
     with open('output/picks.json', 'w', encoding='utf-8') as f:
         json.dump(output, f, indent=2, ensure_ascii=False)
@@ -134,7 +142,7 @@ def run_pipeline():
             print(f"\n-- {tier_emoji} ({len(tier_picks)}) --")
             for p in tier_picks:
                 sc = p.get('sources_count', 0)
-                badges = f"[{sc}/3"
+                badges = f"[{sc}/4"
                 if p.get('sources_unanimous'):
                     badges += " ✓✓"
                 elif p.get('sources_agree'):
@@ -144,6 +152,8 @@ def run_pipeline():
                 badges += "]"
                 if p.get('has_pickswise'):
                     badges += f" PW:{p['pickswise_confidence']}⭐"
+                if p.get('has_dratings'):
+                    badges += f" DR:{p['dratings_prob']}%"
                 print(f"  [{p['sport']}] {p['pick']:.<32} {p['model_prob']}% | edge +{p['edge']}% | conf {p['confidence']} {badges}")
 
         print(f"\n{'=' * 60}")

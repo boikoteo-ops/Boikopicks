@@ -344,6 +344,30 @@ html, body {
   box-shadow: 0 0 8px rgba(0, 212, 170, 0.3);
 }
 
+.sources-badge.sources-supreme {
+  background: linear-gradient(135deg,
+    rgba(0, 212, 170, 0.4),
+    rgba(58, 134, 255, 0.3),
+    rgba(255, 184, 0, 0.2));
+  color: #ffffff;
+  border: 1px solid var(--accent-green);
+  box-shadow: 0 0 12px rgba(0, 212, 170, 0.5),
+              0 0 24px rgba(0, 212, 170, 0.2);
+  font-weight: 700;
+  animation: supreme-pulse 2s ease-in-out infinite;
+}
+
+@keyframes supreme-pulse {
+  0%, 100% {
+    box-shadow: 0 0 12px rgba(0, 212, 170, 0.5),
+                0 0 24px rgba(0, 212, 170, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(0, 212, 170, 0.7),
+                0 0 32px rgba(0, 212, 170, 0.3);
+  }
+}
+
 .sources-badge.sources-agree {
   background: rgba(0, 212, 170, 0.15);
   color: var(--accent-green);
@@ -377,6 +401,17 @@ html, body {
   border-color: var(--accent-amber);
   font-weight: 700;
   box-shadow: 0 0 8px rgba(255, 184, 0, 0.3);
+}
+
+.dratings-badge {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 8px;
+  background: rgba(58, 134, 255, 0.15);
+  color: var(--accent-blue);
+  border: 1px solid var(--accent-blue);
+  font-weight: 600;
+  letter-spacing: 0.3px;
 }
 
 .tier-badge {
@@ -480,4 +515,5 @@ html, body {
   .hist-value { font-size: 18px; }
   .container { padding: 12px; }
   .pickswise-badge { font-size: 9px; }
+  .dratings-badge { font-size: 9px; }
 }
