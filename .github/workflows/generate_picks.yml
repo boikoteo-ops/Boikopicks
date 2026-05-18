@@ -6,39 +6,47 @@ on:
           - cron: '0 17 * * *'   # 1 PM AST
               - cron: '0 22 * * *'   # 6 PM AST
                 workflow_dispatch:
-
+                
                 jobs:
                   generate:
                       runs-on: ubuntu-latest
                           permissions:
                                 contents: write
-
+                                
                                     steps:
                                           - name: Checkout repo
                                                   uses: actions/checkout@v4
                                                           with:
                                                                     fetch-depth: 0
-
+                                                                    
                                                                           - name: Setup Python
                                                                                   uses: actions/setup-python@v5
                                                                                           with:
                                                                                                     python-version: '3.12'
-
+                                                                                                    
                                                                                                           - name: Install dependencies
                                                                                                                   run: |
                                                                                                                             python -m pip install --upgrade pip
                                                                                                                                       pip install -r requirements.txt
-
+                                                                                                                                      
                                                                                                                                             - name: Run picks generator
                                                                                                                                                     run: python -m src.main
-
+                                                                                                                                                    
                                                                                                                                                           - name: Copy picks.json to web folder
                                                                                                                                                                   run: cp output/picks.json web/picks.json
-
+                                                                                                                                                                  
                                                                                                                                                                         - name: Commit and push if changed
                                                                                                                                                                                 run: |
                                                                                                                                                                                           git config --local user.email "actions@github.com"
                                                                                                                                                                                                     git config --local user.name "GitHub Actions"
+                                                                                                                                                                                                              git add output/picks.json output/history.json web/picks.json
+                                                                                                                                                                                                                        if git diff --staged --quiet; then
+                                                                                                                                                                                                                                    echo "No changes to commit"
+                                                                                                                                                                                                                                              else
+                                                                                                                                                                                                                                                          git commit -m "Auto-update picks $(date -u +'%Y-%m-%d %H:%M UTC')"
+                                                                                                                                                                                                                                                                      git pull --rebase origin main
+                                                                                                                                                                                                                                                                                  git push
+                                                                                                                                                                                                                                                                                            fi                                                                                                                                                            git config --local user.name "GitHub Actions"
                                                                                                                                                                                                               git add output/picks.json output/history.json web/picks.json
                                                                                                                                                                                                                         if git diff --staged --quiet; then
                                                                                                                                                                                                                                     echo "No changes to commit"
