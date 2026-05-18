@@ -65,7 +65,6 @@ function renderStats(data) {
   document.getElementById('statPicks').textContent = totalPicks;
   document.getElementById('statPremium').textContent = premium;
 
-  // Stats historicas
   const stats = data.stats?.overall;
   if (!stats || stats.verified === 0) {
     document.getElementById('histRecord').textContent = '—';
@@ -77,7 +76,7 @@ function renderStats(data) {
 
   document.getElementById('histRecord').textContent = `${stats.wins}-${stats.losses}`;
   document.getElementById('histWinRate').textContent = `${stats.win_rate}% acierto`;
-  
+
   const roiEl = document.getElementById('histRoi');
   const roiSign = stats.roi >= 0 ? '+' : '';
   roiEl.textContent = `${roiSign}${stats.roi}%`;
@@ -129,25 +128,37 @@ function renderPicks(data) {
 
 function renderSourcesBadge(pick) {
   const count = pick.sources_count || 0;
-  const total = pick.sources_total || 2;
+  const total = pick.sources_total || 3;
   const agree = pick.sources_agree;
+  const unanimous = pick.sources_unanimous;
 
   if (count === 0) return '';
 
   let className = 'sources-badge';
-  let label = `${count}/${total} fuentes`;
+  let label = `${count}/${total}`;
 
-  if (agree === true) {
+  if (unanimous && count >= 2) {
+    className += ' sources-unanimous';
+    label += ' ✓✓';
+  } else if (agree === true) {
     className += ' sources-agree';
-    label = `${count}/${total} ✓`;
+    label += ' ✓';
   } else if (agree === false) {
     className += ' sources-disagree';
-    label = `${count}/${total} ⚠`;
-  } else if (count === 1) {
+    label += ' ⚠';
+  } else {
     className += ' sources-partial';
   }
 
   return `<span class="${className}">${label}</span>`;
+}
+
+function renderPickswiseBadge(pick) {
+  if (!pick.has_pickswise || !pick.pickswise_confidence) return '';
+  const stars = '⭐'.repeat(pick.pickswise_confidence);
+  const isBestBet = pick.pickswise_confidence === 5;
+  const className = isBestBet ? 'pickswise-badge best-bet' : 'pickswise-badge';
+  return `<span class="${className}" title="Pickswise confianza ${pick.pickswise_confidence}/5">${stars}</span>`;
 }
 
 function renderPickCard(pick) {
@@ -185,6 +196,7 @@ function renderPickCard(pick) {
         <span class="pick-stat highlight"><strong>${pick.model_prob}%</strong> modelo</span>
         <span class="pick-stat">edge <strong>+${pick.edge}%</strong></span>
         <span class="pick-stat">conf <strong>${pick.confidence}</strong></span>
+        ${renderPickswiseBadge(pick)}
         ${renderSourcesBadge(pick)}
       </div>
     </div>

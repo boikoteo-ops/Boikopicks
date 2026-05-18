@@ -9,6 +9,7 @@
   --accent-blue: #3a86ff;
   --accent-amber: #ffb800;
   --accent-red: #ff4757;
+  --accent-purple: #9d4edd;
   --border: #232b36;
   --radius: 10px;
 }
@@ -307,7 +308,7 @@ html, body {
 
 .pick-stats {
   display: flex;
-  gap: 12px;
+  gap: 8px;
   font-size: 11px;
   flex-wrap: wrap;
   align-items: center;
@@ -336,6 +337,13 @@ html, body {
   margin-left: auto;
 }
 
+.sources-badge.sources-unanimous {
+  background: linear-gradient(135deg, rgba(0, 212, 170, 0.25), rgba(58, 134, 255, 0.2));
+  color: var(--accent-green);
+  border: 1px solid var(--accent-green);
+  box-shadow: 0 0 8px rgba(0, 212, 170, 0.3);
+}
+
 .sources-badge.sources-agree {
   background: rgba(0, 212, 170, 0.15);
   color: var(--accent-green);
@@ -351,6 +359,24 @@ html, body {
 .sources-badge.sources-partial {
   background: rgba(255, 184, 0, 0.15);
   color: var(--accent-amber);
+}
+
+.pickswise-badge {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 8px;
+  background: rgba(157, 78, 221, 0.15);
+  color: var(--accent-purple);
+  border: 1px solid var(--accent-purple);
+  letter-spacing: -1px;
+}
+
+.pickswise-badge.best-bet {
+  background: linear-gradient(135deg, rgba(255, 184, 0, 0.3), rgba(255, 215, 0, 0.2));
+  color: var(--accent-amber);
+  border-color: var(--accent-amber);
+  font-weight: 700;
+  box-shadow: 0 0 8px rgba(255, 184, 0, 0.3);
 }
 
 .tier-badge {
@@ -453,4 +479,5 @@ html, body {
   .stat-value { font-size: 20px; }
   .hist-value { font-size: 18px; }
   .container { padding: 12px; }
+  .pickswise-badge { font-size: 9px; }
 }

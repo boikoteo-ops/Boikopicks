@@ -3,13 +3,14 @@ Orquestador principal: ejecuta el pipeline completo y genera picks.json
 """
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 import pytz
 
 from src.fetchers.mlb_schedule import get_mlb_games_today
 from src.fetchers.nba_schedule import get_nba_games_today
 from src.fetchers.fanduel_odds import get_fanduel_predictions
 from src.fetchers.covers_consensus import get_covers_consensus
+from src.fetchers.pickswise import get_pickswise_picks
 from src.engine.consensus import merge_game_data, generate_picks, suggest_parlays
 from src.engine.stats import get_summary
 from src.verify_picks import (
@@ -18,7 +19,6 @@ from src.verify_picks import (
     add_todays_picks_to_tracking,
     verify_picks_for_date,
 )
-from datetime import timedelta
 
 
 def run_pipeline():
@@ -54,11 +54,16 @@ def run_pipeline():
     nba_covers = get_covers_consensus('nba')
     print(f"    MLB: {len(mlb_covers)} | NBA: {len(nba_covers)}")
 
+    print("  Pickswise (handicappers)...")
+    mlb_pickswise = get_pickswise_picks('mlb')
+    nba_pickswise = get_pickswise_picks('nba')
+    print(f"    MLB: {len(mlb_pickswise)} | NBA: {len(nba_pickswise)}")
+
     # 4. Cruce y picks
     print("\n[4/5] Cruzando datos y generando picks...")
 
-    mlb_merged = merge_game_data(mlb_games, mlb_numberfire, mlb_covers)
-    nba_merged = merge_game_data(nba_games, nba_numberfire, nba_covers)
+    mlb_merged = merge_game_data(mlb_games, mlb_numberfire, mlb_covers, mlb_pickswise)
+    nba_merged = merge_game_data(nba_games, nba_numberfire, nba_covers, nba_pickswise)
 
     all_games = mlb_merged + nba_merged
 
@@ -68,7 +73,7 @@ def run_pipeline():
     print(f"      Total juegos analizados: {len(all_games)}")
     print(f"      Picks recomendados: {len(picks)}")
 
-    # Guardar primero el picks.json sin stats (necesario para que verify_picks lo lea)
+    # Guardar picks.json sin stats primero (para verify_picks)
     output = {
         'generated_at': now.isoformat(),
         'date_display': now.strftime('%d/%m/%Y'),
@@ -77,7 +82,7 @@ def run_pipeline():
             'total_games_nba': len(nba_games),
             'total_picks': len(picks),
             'sports_active': [s for s, count in [('MLB', len(mlb_games)), ('NBA', len(nba_games))] if count > 0],
-            'sources_used': ['numberFire', 'Covers Consensus'],
+            'sources_used': ['numberFire', 'Covers Consensus', 'Pickswise'],
         },
         'games': all_games,
         'picks': picks,
@@ -93,7 +98,6 @@ def run_pipeline():
     history = load_history()
     history = add_todays_picks_to_tracking(history)
 
-    # Verificar dias anteriores
     yesterday_str = (now - timedelta(days=1)).strftime('%Y-%m-%d')
     day_before_str = (now - timedelta(days=2)).strftime('%Y-%m-%d')
     history = verify_picks_for_date(history, yesterday_str)
@@ -129,12 +133,18 @@ def run_pipeline():
                 continue
             print(f"\n-- {tier_emoji} ({len(tier_picks)}) --")
             for p in tier_picks:
-                agree_mark = ''
-                if p.get('sources_agree') is True:
-                    agree_mark = ' [2/2]'
+                sc = p.get('sources_count', 0)
+                badges = f"[{sc}/3"
+                if p.get('sources_unanimous'):
+                    badges += " ✓✓"
+                elif p.get('sources_agree'):
+                    badges += " ✓"
                 elif p.get('sources_agree') is False:
-                    agree_mark = ' [disienten]'
-                print(f"  [{p['sport']}] {p['pick']:.<32} {p['model_prob']}% | edge +{p['edge']}% | conf {p['confidence']}{agree_mark}")
+                    badges += " ⚠"
+                badges += "]"
+                if p.get('has_pickswise'):
+                    badges += f" PW:{p['pickswise_confidence']}⭐"
+                print(f"  [{p['sport']}] {p['pick']:.<32} {p['model_prob']}% | edge +{p['edge']}% | conf {p['confidence']} {badges}")
 
         print(f"\n{'=' * 60}")
         print(f"STATS HISTORICAS")

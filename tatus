@@ -1,0 +1,5 @@
+[33mb9a5260[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m Fix: workflow hace pull antes de push para evitar conflictos
+[33me93966f[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Fase 4: tracking de resultados + stats en frontend
+[33m6872557[m Ajustar horarios cron: 11 AM, 1 PM, 6 PM AST
+[33mf61b6e6[m Frontend: badge de consenso entre fuentes (2/2)
+[33m1b0fdec[m Integrar Covers como segunda fuente en motor de consenso
