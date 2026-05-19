@@ -2,6 +2,3 @@ requests==2.32.3
 beautifulsoup4==4.12.3
 python-dateutil==2.9.0
 pytz==2024.2
-pdf2image
-pytesseract
-Pillow
