@@ -31,26 +31,15 @@ jobs:
         run: |
           git config --local user.email "actions@github.com"
           git config --local user.name "github-actions[bot]"
-          
-          # Stash todo antes de cualquier operacion git
           git stash --include-untracked || true
-          
-          # Pull primero, ya con stash hecho
           git pull --rebase origin main || true
-          
-          # Recuperar los cambios stashed
           git stash pop || true
-          
-          # Ahora si, add y commit
           git add -A
           if git diff --staged --quiet; then
             echo "No changes to commit"
             exit 0
           fi
-          
           git commit -m "Auto-update picks $(date -u +%Y-%m-%d\ %H:%M\ UTC)"
-          
-          # Push con reintento de seguridad
           for i in 1 2 3; do
             if git push; then
               echo "Push exitoso en intento $i"
@@ -60,6 +49,4 @@ jobs:
             sleep 3
             git pull --rebase origin main || true
           done
-          
-          echo "Push fallo despues de 3 intentos"
           exit 1
