@@ -4,11 +4,6 @@ test_listin.py — Prueba end-to-end del módulo listin_guia.
 Uso:
     python test_listin.py                 # fecha de hoy
     python test_listin.py 2026-05-16      # fecha específica
-
-Salida:
-    - Imprime cada paso del pipeline
-    - Guarda el PDF y el texto OCR completo en ./out_listin/
-    - Lista todos los picks extraídos para inspección manual
 """
 import sys
 import logging
@@ -38,14 +33,15 @@ def main():
     result = fetch_guia(target_date=target, work_dir=OUT_DIR)
 
     print(f"\n--- RESUMEN ---")
-    print(f"Fecha:       {result.fecha}")
-    print(f"Artículo:    {result.article_url or '(no encontrado)'}")
-    print(f"Yumpu ID:    {result.yumpu_id or '(no extraído)'}")
-    print(f"PDF:         {result.pdf_path or '(no descargado)'}")
-    print(f"Error:       {result.error or 'ninguno'}")
-    print(f"OCR chars:   {len(result.ocr_text)}")
-    print(f"Picks MLB:   {sum(1 for p in result.picks if p.sport == 'MLB')}")
-    print(f"Picks NBA:   {sum(1 for p in result.picks if p.sport == 'NBA')}")
+    print(f"Fecha:         {result.fecha}")
+    print(f"Artículo:      {result.article_url or '(no encontrado)'}")
+    print(f"Yumpu hash:    {result.yumpu_hash or '(no extraído)'}")
+    print(f"Numeric ID:    {result.yumpu_numeric_id or '(no extraído)'}")
+    print(f"Páginas:       {result.pages_downloaded}")
+    print(f"Error:         {result.error or 'ninguno'}")
+    print(f"OCR chars:     {len(result.ocr_text)}")
+    print(f"Picks MLB:     {sum(1 for p in result.picks if p.sport == 'MLB')}")
+    print(f"Picks NBA:     {sum(1 for p in result.picks if p.sport == 'NBA')}")
 
     if result.ocr_text:
         ocr_file = OUT_DIR / f"ocr_{target.isoformat()}.txt"
