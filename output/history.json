@@ -683,7 +683,25 @@
       "result": null,
       "verified_at": null,
       "tracked_at": "2026-05-19T15:15:02.883714-04:00"
+    },
+    {
+      "date_played": "2026-05-19",
+      "sport": "MLB",
+      "pick": "Los Angeles Angels",
+      "home": "Los Angeles Angels",
+      "away": "Athletics",
+      "side": "home",
+      "tier": "watch",
+      "model_prob": 55.0,
+      "edge": 0.8,
+      "confidence": 22.2,
+      "estimated_odds": -119,
+      "sources_agree": true,
+      "sources_count": 3,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-05-19T18:55:33.044553-04:00"
     }
   ],
-  "last_update": "2026-05-19T17:30:27.543218-04:00"
+  "last_update": "2026-05-19T18:55:30.649257-04:00"
 }
