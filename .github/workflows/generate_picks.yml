@@ -15,38 +15,54 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-      - name: Run picks generator
-        run: python -m src.main
-      - name: Copy picks.json to web folder
-        run: cp output/picks.json web/picks.json
-      - name: Commit and push if changed
+      
+      - name: Sync with latest remote
         run: |
           git config --local user.email "actions@github.com"
           git config --local user.name "github-actions[bot]"
-          git stash --include-untracked || true
-          git pull --rebase origin main || true
-          git stash pop || true
-          git add -A
+          git pull origin main --no-rebase --strategy-option=theirs || true
+      
+      - name: Run picks generator
+        run: python -m src.main
+      
+      - name: Copy picks.json to web folder
+        run: cp output/picks.json web/picks.json
+      
+      - name: Validate JSON before commit
+        run: |
+          python3 -c "import json; json.load(open('output/picks.json'))" && echo "output/picks.json OK"
+          python3 -c "import json; json.load(open('web/picks.json'))" && echo "web/picks.json OK"
+      
+      - name: Commit and push
+        run: |
+          git add output/picks.json output/history.json web/picks.json
+          
           if git diff --staged --quiet; then
             echo "No changes to commit"
             exit 0
           fi
+          
           git commit -m "Auto-update picks $(date -u +%Y-%m-%d\ %H:%M\ UTC)"
+          
           for i in 1 2 3; do
             if git push; then
               echo "Push exitoso en intento $i"
               exit 0
             fi
-            echo "Push fallo en intento $i, reintentando..."
+            echo "Push fallo en intento $i, sincronizando y reintentando..."
             sleep 3
-            git pull --rebase origin main || true
+            git pull origin main --no-rebase --strategy-option=ours || true
           done
+          
+          echo "Push fallo despues de 3 intentos"
           exit 1
