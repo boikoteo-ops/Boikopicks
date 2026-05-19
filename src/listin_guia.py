@@ -1,26 +1,26 @@
 """
 listin_guia.py — Quinta fuente de picks: Guía Deportiva del Listín Diario.
 
-Estrategia v2 (post-test 2026-05-19):
-  Yumpu protege el PDF directo (404 en /document/pdf/{id}.pdf), pero expone
-  las IMÁGENES de cada página vía CDN público. Bajamos cada página como JPG
-  y le hacemos OCR directo, saltando pdf2image.
+Estrategia v3 (post-test 2026-05-19, segundo intento):
+  El visor embebido de Yumpu (/embed/view/{hash}) contiene en su HTML las
+  URLs reales de las imágenes de páginas (img.yumpu.com/...). En vez de
+  adivinar el patrón, las extraemos directamente del HTML del visor.
+
+  Yumpu sirve esas imágenes públicamente sin auth.
 
 Flujo:
   1. Buscar el artículo de la Guía Deportiva del día en listindiario.com
-  2. Extraer el ID del documento de Yumpu embebido
-  3. Bajar imágenes de páginas (page-1.jpg, page-2.jpg, ...) hasta 404
-  4. OCR de cada imagen con Tesseract (español)
-  5. Parsear el texto para extraer picks de MLB y NBA
+  2. Extraer el hash de Yumpu (ej. rPaCwL2b1VHg3Wt0) del HTML del artículo
+  3. Fetch al visor https://www.yumpu.com/es/embed/view/{hash}
+  4. Extraer todas las URLs img.yumpu.com/{numId}/{page}/.../{slug}.jpg
+  5. Bajar las imágenes (preferir resolución más alta disponible)
+  6. OCR de cada imagen con Tesseract español
+  7. Parsear el texto para extraer picks de MLB y NBA
 
-Dependencias del SO (Ubuntu en GitHub Actions):
-    sudo apt-get install -y tesseract-ocr tesseract-ocr-spa
-
+Dependencias del SO:
+    tesseract-ocr, tesseract-ocr-spa
 Dependencias Python:
-    requests
-    beautifulsoup4
-    pytesseract
-    Pillow
+    requests, beautifulsoup4, pytesseract, Pillow
 """
 from __future__ import annotations
 
@@ -29,7 +29,6 @@ import re
 import tempfile
 from dataclasses import dataclass, field
 from datetime import date, datetime
-from io import BytesIO
 from pathlib import Path
 from typing import Optional
 
@@ -40,27 +39,26 @@ log = logging.getLogger(__name__)
 
 LISTIN_BASE = "https://listindiario.com"
 GUIA_INDEX = f"{LISTIN_BASE}/el-deporte/guia-deportiva"
+YUMPU_EMBED = "https://www.yumpu.com/es/embed/view/{hash_id}"
 USER_AGENT = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
     "AppleWebKit/537.36 (KHTML, like Gecko) "
     "Chrome/120.0.0.0 Safari/537.36"
 )
 REQUEST_TIMEOUT = 30
+MAX_PAGES_HARD_CAP = 12  # Tope de seguridad
 
-# Yumpu CDN — patrones observados en el visor. Probamos varios formatos
-# porque Yumpu sirve varias resoluciones; preferimos la más grande.
-YUMPU_IMG_TEMPLATES = [
-    "https://img.yumpu.com/{doc_id}/{page}/1500x2120/page-{page}.jpg",
-    "https://img.yumpu.com/{doc_id}/{page}/1080x1527/page-{page}.jpg",
-    "https://img.yumpu.com/{doc_id}/{page}/720x1018/page-{page}.jpg",
-]
-MAX_PAGES = 8       # Tope de seguridad por documento
-MAX_404_RETRY = 2   # Si el primer template da 404, probar siguientes
+# Patrón confirmado por docs públicas de Yumpu:
+#   https://img.yumpu.com/{numericId}/{pageNum}/{WxH}/{slug}.jpg
+IMG_URL_RE = re.compile(
+    r"https?://img\.yumpu\.com/(\d+)/(\d+)/(\d+x\d+)/([^\"'\s<>]+\.(?:jpg|jpeg|png))",
+    re.IGNORECASE,
+)
 
 
 @dataclass
 class GuiaPick:
-    sport: str            # "MLB" | "NBA"
+    sport: str
     matchup: str
     pick: str
     raw_line: str
@@ -69,8 +67,9 @@ class GuiaPick:
 @dataclass
 class GuiaResult:
     fecha: date
-    article_url: str
-    yumpu_id: Optional[str]
+    article_url: str = ""
+    yumpu_hash: Optional[str] = None
+    yumpu_numeric_id: Optional[str] = None
     pages_downloaded: int = 0
     picks: list[GuiaPick] = field(default_factory=list)
     ocr_text: str = ""
@@ -81,7 +80,8 @@ class GuiaResult:
             "source": "listin_guia",
             "fecha": self.fecha.isoformat(),
             "url": self.article_url,
-            "yumpu_id": self.yumpu_id,
+            "yumpu_hash": self.yumpu_hash,
+            "yumpu_numeric_id": self.yumpu_numeric_id,
             "pages": self.pages_downloaded,
             "picks_mlb": [
                 {"matchup": p.matchup, "pick": p.pick}
@@ -106,7 +106,7 @@ def _session() -> requests.Session:
 
 
 # ---------------------------------------------------------------------------
-# Paso 1: Encontrar el artículo del día
+# Paso 1: Encontrar artículo del día
 # ---------------------------------------------------------------------------
 
 def find_article_url(target_date: date, session: requests.Session) -> Optional[str]:
@@ -130,23 +130,22 @@ def find_article_url(target_date: date, session: requests.Session) -> Optional[s
                 log.info("Artículo encontrado: %s", full)
                 return full
 
-    log.warning("No se encontró artículo de la Guía para %s", target_date)
+    log.warning("No se encontró artículo para %s", target_date)
     return None
 
 
 # ---------------------------------------------------------------------------
-# Paso 2: Extraer ID de Yumpu del HTML del artículo
+# Paso 2: Extraer hash de Yumpu del HTML del artículo
 # ---------------------------------------------------------------------------
 
-YUMPU_PATTERNS = [
+YUMPU_HASH_PATTERNS = [
     re.compile(r"yumpu\.com/[a-z]{2}/embed/view/([A-Za-z0-9]+)"),
     re.compile(r"yumpu\.com/[a-z]{2}/document/view/\d+/([A-Za-z0-9]+)"),
-    re.compile(r'data-yumpu[^=]*=["\']([A-Za-z0-9]+)["\']', re.IGNORECASE),
 ]
 
 
-def extract_yumpu_id(article_html: str) -> Optional[str]:
-    for pattern in YUMPU_PATTERNS:
+def extract_yumpu_hash(article_html: str) -> Optional[str]:
+    for pattern in YUMPU_HASH_PATTERNS:
         m = pattern.search(article_html)
         if m:
             return m.group(1)
@@ -154,61 +153,76 @@ def extract_yumpu_id(article_html: str) -> Optional[str]:
 
 
 # ---------------------------------------------------------------------------
-# Paso 3: Bajar imágenes de las páginas del visor de Yumpu
+# Paso 3-4: Obtener URLs de imágenes desde el HTML del visor
 # ---------------------------------------------------------------------------
 
-def download_page_image(yumpu_id: str, page_num: int, session: requests.Session,
-                        dest_dir: Path) -> Optional[Path]:
+def extract_image_urls(viewer_html: str) -> tuple[Optional[str], list[tuple[int, str]]]:
     """
-    Intenta bajar una página específica probando los templates de mayor a
-    menor resolución. Devuelve la ruta al JPG o None si todos fallan.
+    Devuelve (numeric_id, [(page_num, url_mayor_resolucion), ...]) ordenado.
+    Si una página aparece con varias resoluciones, conservamos la mayor (área).
     """
-    for tmpl in YUMPU_IMG_TEMPLATES:
-        url = tmpl.format(doc_id=yumpu_id, page=page_num)
+    matches = IMG_URL_RE.findall(viewer_html)
+    if not matches:
+        return None, []
+
+    # matches = [(num_id, page, "WxH", filename_part), ...]
+    # Agrupar por página, quedarnos con la mayor resolución
+    best_per_page: dict[int, tuple[int, str]] = {}  # page -> (area, url)
+    numeric_id = None
+
+    for num_id, page_str, dims, filename in matches:
+        if numeric_id is None:
+            numeric_id = num_id
+        elif num_id != numeric_id:
+            # Documento distinto en el HTML, ignoramos
+            continue
+
+        try:
+            page = int(page_str)
+            w, h = (int(x) for x in dims.lower().split("x"))
+            area = w * h
+        except ValueError:
+            continue
+
+        url = f"https://img.yumpu.com/{num_id}/{page}/{dims}/{filename}"
+        prev = best_per_page.get(page)
+        if prev is None or area > prev[0]:
+            best_per_page[page] = (area, url)
+
+    sorted_pages = sorted(best_per_page.items())[:MAX_PAGES_HARD_CAP]
+    urls = [(page, area_url[1]) for page, area_url in sorted_pages]
+    log.info("URLs de imágenes extraídas: %d páginas (numeric_id=%s)", len(urls), numeric_id)
+    return numeric_id, urls
+
+
+def download_images(image_specs: list[tuple[int, str]], session: requests.Session,
+                    dest_dir: Path) -> list[Path]:
+    saved: list[Path] = []
+    for page_num, url in image_specs:
         try:
             r = session.get(url, timeout=REQUEST_TIMEOUT)
-            if r.status_code == 200 and r.headers.get("Content-Type", "").startswith("image/"):
-                dest = dest_dir / f"page_{page_num:02d}.jpg"
-                dest.write_bytes(r.content)
-                log.debug("Página %d guardada (%s): %d bytes",
-                          page_num, tmpl.split("/")[-2], len(r.content))
-                return dest
-            log.debug("Template falló para página %d: status=%d", page_num, r.status_code)
+            ctype = r.headers.get("Content-Type", "")
+            if r.status_code != 200 or not ctype.startswith("image/"):
+                log.warning("Página %d: status=%d ctype=%s url=%s",
+                            page_num, r.status_code, ctype, url)
+                continue
+            ext = ".jpg" if "jpeg" in ctype or "jpg" in ctype else ".png"
+            dest = dest_dir / f"page_{page_num:02d}{ext}"
+            dest.write_bytes(r.content)
+            log.debug("Página %d: %d bytes -> %s", page_num, len(r.content), dest.name)
+            saved.append(dest)
         except requests.RequestException as e:
-            log.debug("Error de red página %d: %s", page_num, e)
-    return None
+            log.warning("Error de red página %d: %s", page_num, e)
 
-
-def download_all_pages(yumpu_id: str, session: requests.Session, dest_dir: Path) -> list[Path]:
-    """
-    Baja páginas secuencialmente hasta que dos consecutivas fallen
-    (señal de fin del documento) o llegar a MAX_PAGES.
-    """
-    pages: list[Path] = []
-    consecutive_failures = 0
-
-    for page_num in range(1, MAX_PAGES + 1):
-        img_path = download_page_image(yumpu_id, page_num, session, dest_dir)
-        if img_path is None:
-            consecutive_failures += 1
-            log.info("Página %d no disponible (fallo consecutivo %d)",
-                     page_num, consecutive_failures)
-            if consecutive_failures >= MAX_404_RETRY:
-                break
-            continue
-        consecutive_failures = 0
-        pages.append(img_path)
-
-    log.info("Total páginas descargadas: %d", len(pages))
-    return pages
+    log.info("Total páginas descargadas: %d", len(saved))
+    return saved
 
 
 # ---------------------------------------------------------------------------
-# Paso 4: OCR de las imágenes
+# Paso 5: OCR
 # ---------------------------------------------------------------------------
 
 def ocr_images(image_paths: list[Path]) -> str:
-    """OCR español sobre cada imagen, concatenado por página."""
     try:
         import pytesseract
         from PIL import Image
@@ -221,16 +235,15 @@ def ocr_images(image_paths: list[Path]) -> str:
             with Image.open(path) as img:
                 text = pytesseract.image_to_string(img, lang="spa")
             pieces.append(f"--- PAGE {i} ({path.name}) ---\n{text}")
-            log.debug("Página %d: %d chars de texto OCR", i, len(text))
+            log.debug("Página %d: %d chars OCR", i, len(text))
         except Exception as e:
             log.warning("OCR falló en página %d (%s): %s", i, path.name, e)
             pieces.append(f"--- PAGE {i} ({path.name}) — OCR ERROR: {e} ---")
-
     return "\n\n".join(pieces)
 
 
 # ---------------------------------------------------------------------------
-# Paso 5: Parsear picks del texto OCR
+# Paso 6: Parsear picks
 # ---------------------------------------------------------------------------
 
 MLB_TEAMS = {
@@ -241,7 +254,6 @@ MLB_TEAMS = {
     "Cubs", "Reds", "Brewers", "Pirates", "Cardinals",
     "Dodgers", "Padres", "Giants", "Rockies", "Diamondbacks",
 }
-
 NBA_TEAMS = {
     "Celtics", "Nets", "Knicks", "76ers", "Raptors",
     "Bulls", "Cavaliers", "Pistons", "Pacers", "Bucks",
@@ -266,25 +278,15 @@ def parse_picks(ocr_text: str) -> list[GuiaPick]:
     picks: list[GuiaPick] = []
     for raw in ocr_text.splitlines():
         line = raw.strip()
-        if len(line) < 10 or len(line) > 200:
+        if len(line) < 10 or len(line) > 200 or line.startswith("--- PAGE"):
             continue
-        if line.startswith("--- PAGE"):
-            continue
-
         sport = _classify_line(line)
         if sport is None:
             continue
-
         teams = MLB_TEAMS if sport == "MLB" else NBA_TEAMS
         found = [t for t in teams if t in line]
         matchup = " vs ".join(found[:2]) if len(found) >= 2 else (found[0] if found else "?")
-
-        picks.append(GuiaPick(
-            sport=sport,
-            matchup=matchup,
-            pick=line,
-            raw_line=raw,
-        ))
+        picks.append(GuiaPick(sport=sport, matchup=matchup, pick=line, raw_line=raw))
 
     log.info("Picks extraídos: %d MLB, %d NBA",
              sum(1 for p in picks if p.sport == "MLB"),
@@ -293,7 +295,7 @@ def parse_picks(ocr_text: str) -> list[GuiaPick]:
 
 
 # ---------------------------------------------------------------------------
-# Orquestador público
+# Orquestador
 # ---------------------------------------------------------------------------
 
 def fetch_guia(target_date: Optional[date] = None,
@@ -304,17 +306,17 @@ def fetch_guia(target_date: Optional[date] = None,
         work_dir = Path(tempfile.mkdtemp(prefix="listin_guia_"))
     work_dir.mkdir(parents=True, exist_ok=True)
 
-    result = GuiaResult(fecha=target_date, article_url="", yumpu_id=None)
+    result = GuiaResult(fecha=target_date)
     session = _session()
 
-    # 1. Encontrar artículo
+    # 1. Artículo del día
     article_url = find_article_url(target_date, session)
     if not article_url:
         result.error = "no_article_found"
         return result
     result.article_url = article_url
 
-    # 2. ID de Yumpu
+    # 2. Hash de Yumpu
     try:
         r = session.get(article_url, timeout=REQUEST_TIMEOUT)
         r.raise_for_status()
@@ -322,23 +324,44 @@ def fetch_guia(target_date: Optional[date] = None,
         result.error = f"article_fetch_failed: {e}"
         return result
 
-    yumpu_id = extract_yumpu_id(r.text)
-    if not yumpu_id:
-        result.error = "no_yumpu_id_in_article"
+    yumpu_hash = extract_yumpu_hash(r.text)
+    if not yumpu_hash:
+        result.error = "no_yumpu_hash_in_article"
         return result
-    result.yumpu_id = yumpu_id
+    result.yumpu_hash = yumpu_hash
+    log.info("Yumpu hash: %s", yumpu_hash)
 
-    # 3. Bajar imágenes de páginas
-    pages_dir = work_dir / f"pages_{target_date.isoformat()}_{yumpu_id}"
+    # 3. Fetch del visor para obtener URLs de imágenes
+    viewer_url = YUMPU_EMBED.format(hash_id=yumpu_hash)
+    try:
+        rv = session.get(viewer_url, timeout=REQUEST_TIMEOUT)
+        rv.raise_for_status()
+    except requests.RequestException as e:
+        result.error = f"viewer_fetch_failed: {e}"
+        return result
+
+    numeric_id, image_specs = extract_image_urls(rv.text)
+    result.yumpu_numeric_id = numeric_id
+
+    if not image_specs:
+        result.error = "no_image_urls_in_viewer"
+        # Guardamos el HTML del visor para debug
+        debug_path = work_dir / f"viewer_debug_{target_date.isoformat()}.html"
+        debug_path.write_text(rv.text, encoding="utf-8", errors="replace")
+        log.warning("Sin URLs de imágenes. HTML del visor guardado en %s", debug_path)
+        return result
+
+    # 4. Bajar imágenes
+    pages_dir = work_dir / f"pages_{target_date.isoformat()}_{numeric_id}"
     pages_dir.mkdir(exist_ok=True)
-    page_images = download_all_pages(yumpu_id, session, pages_dir)
+    page_images = download_images(image_specs, session, pages_dir)
     result.pages_downloaded = len(page_images)
 
     if not page_images:
         result.error = "no_pages_downloaded"
         return result
 
-    # 4. OCR
+    # 5. OCR
     try:
         ocr_text = ocr_images(page_images)
     except Exception as e:
@@ -347,7 +370,7 @@ def fetch_guia(target_date: Optional[date] = None,
         return result
     result.ocr_text = ocr_text
 
-    # 5. Parsear picks
+    # 6. Picks
     result.picks = parse_picks(ocr_text)
     return result
 
@@ -355,10 +378,11 @@ def fetch_guia(target_date: Optional[date] = None,
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     res = fetch_guia()
-    print(f"\nFecha:    {res.fecha}")
-    print(f"URL:      {res.article_url}")
-    print(f"Yumpu:    {res.yumpu_id}")
-    print(f"Páginas:  {res.pages_downloaded}")
-    print(f"Error:    {res.error}")
-    print(f"MLB:      {sum(1 for p in res.picks if p.sport == 'MLB')}")
-    print(f"NBA:      {sum(1 for p in res.picks if p.sport == 'NBA')}")
+    print(f"\nFecha:        {res.fecha}")
+    print(f"URL:          {res.article_url}")
+    print(f"Yumpu hash:   {res.yumpu_hash}")
+    print(f"Numeric ID:   {res.yumpu_numeric_id}")
+    print(f"Páginas:      {res.pages_downloaded}")
+    print(f"Error:        {res.error}")
+    print(f"MLB:          {sum(1 for p in res.picks if p.sport == 'MLB')}")
+    print(f"NBA:          {sum(1 for p in res.picks if p.sport == 'NBA')}")
