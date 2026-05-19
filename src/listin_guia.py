@@ -1,20 +1,24 @@
 """
 listin_guia.py — Quinta fuente de picks: Guía Deportiva del Listín Diario.
 
+Estrategia v2 (post-test 2026-05-19):
+  Yumpu protege el PDF directo (404 en /document/pdf/{id}.pdf), pero expone
+  las IMÁGENES de cada página vía CDN público. Bajamos cada página como JPG
+  y le hacemos OCR directo, saltando pdf2image.
+
 Flujo:
   1. Buscar el artículo de la Guía Deportiva del día en listindiario.com
   2. Extraer el ID del documento de Yumpu embebido
-  3. Descargar el PDF desde Yumpu
-  4. OCR del PDF (Tesseract español, las páginas son escaneos del periódico)
+  3. Bajar imágenes de páginas (page-1.jpg, page-2.jpg, ...) hasta 404
+  4. OCR de cada imagen con Tesseract (español)
   5. Parsear el texto para extraer picks de MLB y NBA
 
 Dependencias del SO (Ubuntu en GitHub Actions):
-    sudo apt-get install -y tesseract-ocr tesseract-ocr-spa poppler-utils
+    sudo apt-get install -y tesseract-ocr tesseract-ocr-spa
 
-Dependencias Python (agregar a requirements.txt):
+Dependencias Python:
     requests
     beautifulsoup4
-    pdf2image
     pytesseract
     Pillow
 """
@@ -25,6 +29,7 @@ import re
 import tempfile
 from dataclasses import dataclass, field
 from datetime import date, datetime
+from io import BytesIO
 from pathlib import Path
 from typing import Optional
 
@@ -42,38 +47,42 @@ USER_AGENT = (
 )
 REQUEST_TIMEOUT = 30
 
-# Yumpu expone los PDFs aquí. El patrón observado funciona para documentos públicos.
-YUMPU_PDF_TEMPLATE = "https://www.yumpu.com/es/document/pdf/{doc_id}.pdf"
-YUMPU_EMBED_TEMPLATE = "https://www.yumpu.com/es/embed/view/{doc_id}"
+# Yumpu CDN — patrones observados en el visor. Probamos varios formatos
+# porque Yumpu sirve varias resoluciones; preferimos la más grande.
+YUMPU_IMG_TEMPLATES = [
+    "https://img.yumpu.com/{doc_id}/{page}/1500x2120/page-{page}.jpg",
+    "https://img.yumpu.com/{doc_id}/{page}/1080x1527/page-{page}.jpg",
+    "https://img.yumpu.com/{doc_id}/{page}/720x1018/page-{page}.jpg",
+]
+MAX_PAGES = 8       # Tope de seguridad por documento
+MAX_404_RETRY = 2   # Si el primer template da 404, probar siguientes
 
 
 @dataclass
 class GuiaPick:
-    """Un pick individual extraído de la Guía."""
     sport: str            # "MLB" | "NBA"
-    matchup: str          # "Yankees vs Red Sox"
-    pick: str             # texto crudo del pick (equipo, línea, etc.)
-    raw_line: str         # línea original del OCR (para debug)
+    matchup: str
+    pick: str
+    raw_line: str
 
 
 @dataclass
 class GuiaResult:
-    """Resultado completo de la extracción del día."""
     fecha: date
     article_url: str
     yumpu_id: Optional[str]
-    pdf_path: Optional[Path]
+    pages_downloaded: int = 0
     picks: list[GuiaPick] = field(default_factory=list)
     ocr_text: str = ""
     error: Optional[str] = None
 
     def to_dict(self) -> dict:
-        """Forma compatible con el resto de fuentes del pipeline."""
         return {
             "source": "listin_guia",
             "fecha": self.fecha.isoformat(),
             "url": self.article_url,
             "yumpu_id": self.yumpu_id,
+            "pages": self.pages_downloaded,
             "picks_mlb": [
                 {"matchup": p.matchup, "pick": p.pick}
                 for p in self.picks if p.sport == "MLB"
@@ -90,7 +99,7 @@ def _session() -> requests.Session:
     s = requests.Session()
     s.headers.update({
         "User-Agent": USER_AGENT,
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
         "Accept-Language": "es-DO,es;q=0.9,en;q=0.8",
     })
     return s
@@ -101,16 +110,8 @@ def _session() -> requests.Session:
 # ---------------------------------------------------------------------------
 
 def find_article_url(target_date: date, session: requests.Session) -> Optional[str]:
-    """
-    Busca en el índice de la Guía Deportiva el artículo de la fecha dada.
-
-    Las URLs tienen el formato:
-        /el-deporte/guia-deportiva/20260516/gui-deportiva-16-05-2026_905918.html
-
-    Recorre las primeras 2 páginas del índice (suficiente para los últimos ~10 días).
-    """
-    date_token = target_date.strftime("%Y%m%d")           # 20260516
-    date_token_dashed = target_date.strftime("%d-%m-%Y")  # 16-05-2026
+    date_token = target_date.strftime("%Y%m%d")
+    date_token_dashed = target_date.strftime("%d-%m-%Y")
 
     for page in (1, 2):
         url = GUIA_INDEX if page == 1 else f"{GUIA_INDEX}/{page}"
@@ -153,58 +154,77 @@ def extract_yumpu_id(article_html: str) -> Optional[str]:
 
 
 # ---------------------------------------------------------------------------
-# Paso 3: Descargar el PDF de Yumpu
+# Paso 3: Bajar imágenes de las páginas del visor de Yumpu
 # ---------------------------------------------------------------------------
 
-def download_pdf(yumpu_id: str, session: requests.Session, dest: Path) -> Optional[Path]:
+def download_page_image(yumpu_id: str, page_num: int, session: requests.Session,
+                        dest_dir: Path) -> Optional[Path]:
     """
-    Intenta bajar el PDF directo. Si Yumpu requiere login para descarga,
-    devuelve None y el caller tendrá que recurrir al fallback de imágenes
-    de las páginas (no implementado aquí — agregar si fuera necesario).
+    Intenta bajar una página específica probando los templates de mayor a
+    menor resolución. Devuelve la ruta al JPG o None si todos fallan.
     """
-    pdf_url = YUMPU_PDF_TEMPLATE.format(doc_id=yumpu_id)
+    for tmpl in YUMPU_IMG_TEMPLATES:
+        url = tmpl.format(doc_id=yumpu_id, page=page_num)
+        try:
+            r = session.get(url, timeout=REQUEST_TIMEOUT)
+            if r.status_code == 200 and r.headers.get("Content-Type", "").startswith("image/"):
+                dest = dest_dir / f"page_{page_num:02d}.jpg"
+                dest.write_bytes(r.content)
+                log.debug("Página %d guardada (%s): %d bytes",
+                          page_num, tmpl.split("/")[-2], len(r.content))
+                return dest
+            log.debug("Template falló para página %d: status=%d", page_num, r.status_code)
+        except requests.RequestException as e:
+            log.debug("Error de red página %d: %s", page_num, e)
+    return None
+
+
+def download_all_pages(yumpu_id: str, session: requests.Session, dest_dir: Path) -> list[Path]:
+    """
+    Baja páginas secuencialmente hasta que dos consecutivas fallen
+    (señal de fin del documento) o llegar a MAX_PAGES.
+    """
+    pages: list[Path] = []
+    consecutive_failures = 0
+
+    for page_num in range(1, MAX_PAGES + 1):
+        img_path = download_page_image(yumpu_id, page_num, session, dest_dir)
+        if img_path is None:
+            consecutive_failures += 1
+            log.info("Página %d no disponible (fallo consecutivo %d)",
+                     page_num, consecutive_failures)
+            if consecutive_failures >= MAX_404_RETRY:
+                break
+            continue
+        consecutive_failures = 0
+        pages.append(img_path)
+
+    log.info("Total páginas descargadas: %d", len(pages))
+    return pages
+
+
+# ---------------------------------------------------------------------------
+# Paso 4: OCR de las imágenes
+# ---------------------------------------------------------------------------
+
+def ocr_images(image_paths: list[Path]) -> str:
+    """OCR español sobre cada imagen, concatenado por página."""
     try:
-        r = session.get(pdf_url, timeout=REQUEST_TIMEOUT, stream=True)
-        # Yumpu a veces responde 200 con HTML de login en vez del PDF
-        ctype = r.headers.get("Content-Type", "")
-        if r.status_code != 200 or "pdf" not in ctype.lower():
-            log.warning("PDF directo no disponible (status=%d, ctype=%s)", r.status_code, ctype)
-            return None
-
-        dest.write_bytes(r.content)
-        log.info("PDF guardado: %s (%d bytes)", dest, dest.stat().st_size)
-        return dest
-    except requests.RequestException as e:
-        log.error("Error bajando PDF: %s", e)
-        return None
-
-
-# ---------------------------------------------------------------------------
-# Paso 4: OCR del PDF
-# ---------------------------------------------------------------------------
-
-def ocr_pdf(pdf_path: Path) -> str:
-    """
-    Convierte cada página a imagen y le pasa Tesseract en español.
-    Requiere poppler-utils + tesseract-ocr-spa instalados en el sistema.
-    """
-    try:
-        from pdf2image import convert_from_path
         import pytesseract
+        from PIL import Image
     except ImportError as e:
-        raise RuntimeError(
-            "Faltan dependencias: pip install pdf2image pytesseract Pillow"
-        ) from e
-
-    # 300 dpi da buen balance precisión/velocidad para periódico impreso.
-    images = convert_from_path(str(pdf_path), dpi=300)
-    log.info("PDF tiene %d páginas, ejecutando OCR...", len(images))
+        raise RuntimeError("Faltan dependencias: pip install pytesseract Pillow") from e
 
     pieces = []
-    for i, img in enumerate(images, 1):
-        text = pytesseract.image_to_string(img, lang="spa")
-        pieces.append(f"--- PAGE {i} ---\n{text}")
-        log.debug("Página %d: %d chars de texto OCR", i, len(text))
+    for i, path in enumerate(image_paths, 1):
+        try:
+            with Image.open(path) as img:
+                text = pytesseract.image_to_string(img, lang="spa")
+            pieces.append(f"--- PAGE {i} ({path.name}) ---\n{text}")
+            log.debug("Página %d: %d chars de texto OCR", i, len(text))
+        except Exception as e:
+            log.warning("OCR falló en página %d (%s): %s", i, path.name, e)
+            pieces.append(f"--- PAGE {i} ({path.name}) — OCR ERROR: {e} ---")
 
     return "\n\n".join(pieces)
 
@@ -212,15 +232,6 @@ def ocr_pdf(pdf_path: Path) -> str:
 # ---------------------------------------------------------------------------
 # Paso 5: Parsear picks del texto OCR
 # ---------------------------------------------------------------------------
-
-# La Guía Deportiva del Listín publica picks en formato variable según la edición,
-# pero suele incluir bloques de "Grandes Ligas" / "MLB" y "NBA" con líneas tipo:
-#   "Yankees -1.5 sobre Red Sox"
-#   "Lakers ML vs Warriors"
-#   "Más de 8.5 carreras: Dodgers vs Padres"
-#
-# Los patrones abajo son punto de partida — habrá que ajustarlos después de ver
-# OCR real de varios días.
 
 MLB_TEAMS = {
     "Yankees", "Red Sox", "Blue Jays", "Rays", "Orioles",
@@ -242,10 +253,8 @@ NBA_TEAMS = {
 
 
 def _classify_line(line: str) -> Optional[str]:
-    """Devuelve 'MLB', 'NBA' o None según qué equipos aparezcan."""
-    line_lower = line
-    mlb_hits = sum(1 for t in MLB_TEAMS if t in line_lower)
-    nba_hits = sum(1 for t in NBA_TEAMS if t in line_lower)
+    mlb_hits = sum(1 for t in MLB_TEAMS if t in line)
+    nba_hits = sum(1 for t in NBA_TEAMS if t in line)
     if mlb_hits >= 1 and mlb_hits >= nba_hits:
         return "MLB"
     if nba_hits >= 1:
@@ -254,14 +263,12 @@ def _classify_line(line: str) -> Optional[str]:
 
 
 def parse_picks(ocr_text: str) -> list[GuiaPick]:
-    """
-    Extrae picks línea por línea. Heurística simple — mejorar tras ver outputs reales.
-    Devuelve solo líneas que mencionan al menos un equipo de MLB o NBA.
-    """
     picks: list[GuiaPick] = []
     for raw in ocr_text.splitlines():
         line = raw.strip()
         if len(line) < 10 or len(line) > 200:
+            continue
+        if line.startswith("--- PAGE"):
             continue
 
         sport = _classify_line(line)
@@ -289,21 +296,15 @@ def parse_picks(ocr_text: str) -> list[GuiaPick]:
 # Orquestador público
 # ---------------------------------------------------------------------------
 
-def fetch_guia(target_date: Optional[date] = None, work_dir: Optional[Path] = None) -> GuiaResult:
-    """
-    Punto de entrada del módulo. Llamar así desde main.py:
-
-        from listin_guia import fetch_guia
-        result = fetch_guia()
-        sources["listin_guia"] = result.to_dict()
-    """
+def fetch_guia(target_date: Optional[date] = None,
+               work_dir: Optional[Path] = None) -> GuiaResult:
     if target_date is None:
         target_date = datetime.now().date()
     if work_dir is None:
         work_dir = Path(tempfile.mkdtemp(prefix="listin_guia_"))
     work_dir.mkdir(parents=True, exist_ok=True)
 
-    result = GuiaResult(fecha=target_date, article_url="", yumpu_id=None, pdf_path=None)
+    result = GuiaResult(fecha=target_date, article_url="", yumpu_id=None)
     session = _session()
 
     # 1. Encontrar artículo
@@ -327,16 +328,19 @@ def fetch_guia(target_date: Optional[date] = None, work_dir: Optional[Path] = No
         return result
     result.yumpu_id = yumpu_id
 
-    # 3. Descargar PDF
-    pdf_path = work_dir / f"guia_{target_date.isoformat()}_{yumpu_id}.pdf"
-    if not download_pdf(yumpu_id, session, pdf_path):
-        result.error = "pdf_download_failed"
+    # 3. Bajar imágenes de páginas
+    pages_dir = work_dir / f"pages_{target_date.isoformat()}_{yumpu_id}"
+    pages_dir.mkdir(exist_ok=True)
+    page_images = download_all_pages(yumpu_id, session, pages_dir)
+    result.pages_downloaded = len(page_images)
+
+    if not page_images:
+        result.error = "no_pages_downloaded"
         return result
-    result.pdf_path = pdf_path
 
     # 4. OCR
     try:
-        ocr_text = ocr_pdf(pdf_path)
+        ocr_text = ocr_images(page_images)
     except Exception as e:
         log.exception("OCR falló")
         result.error = f"ocr_failed: {e}"
@@ -351,12 +355,10 @@ def fetch_guia(target_date: Optional[date] = None, work_dir: Optional[Path] = No
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     res = fetch_guia()
-    print(f"\nFecha: {res.fecha}")
-    print(f"URL:   {res.article_url}")
-    print(f"Yumpu: {res.yumpu_id}")
-    print(f"Error: {res.error}")
-    print(f"Picks MLB: {sum(1 for p in res.picks if p.sport == 'MLB')}")
-    print(f"Picks NBA: {sum(1 for p in res.picks if p.sport == 'NBA')}")
-    print("\n--- Primeras 5 picks ---")
-    for p in res.picks[:5]:
-        print(f"  [{p.sport}] {p.matchup}: {p.pick}")
+    print(f"\nFecha:    {res.fecha}")
+    print(f"URL:      {res.article_url}")
+    print(f"Yumpu:    {res.yumpu_id}")
+    print(f"Páginas:  {res.pages_downloaded}")
+    print(f"Error:    {res.error}")
+    print(f"MLB:      {sum(1 for p in res.picks if p.sport == 'MLB')}")
+    print(f"NBA:      {sum(1 for p in res.picks if p.sport == 'NBA')}")
