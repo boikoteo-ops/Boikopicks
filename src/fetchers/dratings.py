@@ -1,6 +1,6 @@
 """
 Fetcher de DRatings - 4ta fuente (algoritmo Elo + ML, diferente filosofia).
-Extrae Money Line + datos crudos para Fase 6 futura (Totales / Spread).
+Extrae Money Line + Totales (O/U vs linea Vegas) para MLB.
 """
 import requests
 import re
@@ -100,13 +100,109 @@ def _parse_runs_per_team(text):
     return None, None
 
 
+# ---------------------------------------------------------------------------
+# NUEVAS funciones para Over/Under (Fase 6 — activada)
+# ---------------------------------------------------------------------------
+
+def _parse_ou_line_and_odds(cell):
+    """
+    Parsea la celda "Best O/U" de DRatings.
+    Estructura del HTML (preferimos Vegas, fallback offshore):
+        <div class="offshore-sportsbook">o8½+100<br />u8½-114</div>
+        <div class="vegas-sportsbook">o8½-105<br />u8½-115</div>
+
+    Devuelve dict {line: float, over_odds: int, under_odds: int, book: str}
+    o None si no se puede parsear.
+
+    Notas:
+    - "o8½" significa over 8.5 (DRatings usa ½ para fracciones)
+    - Las odds vienen con signo: -105 (favorito) o +100 (underdog)
+    - Si over y under tienen líneas distintas (ej. "o7 / u7½"), tomamos el
+      promedio como línea de referencia.
+    """
+    # Preferir vegas sobre offshore
+    vegas_div = cell.find('div', class_='vegas-sportsbook')
+    offshore_div = cell.find('div', class_='offshore-sportsbook')
+
+    div_to_use = None
+    book = None
+    if vegas_div and vegas_div.get_text(strip=True):
+        div_to_use = vegas_div
+        book = 'vegas'
+    elif offshore_div and offshore_div.get_text(strip=True):
+        div_to_use = offshore_div
+        book = 'offshore'
+
+    if div_to_use is None:
+        return None
+
+    # El texto viene como "o8½-105\nu8½-115" o "o8½-105 u8½-115"
+    text = div_to_use.get_text(separator='\n', strip=True)
+
+    # Reemplazar ½ por .5 para parsear como decimal
+    text_clean = text.replace('½', '.5').replace('¼', '.25').replace('¾', '.75')
+
+    # Patrón: o<linea><signo><odds> y u<linea><signo><odds>
+    # Ej: "o8.5-105", "u9+100"
+    over_match = re.search(r'o(\d+(?:\.\d+)?)([+-]\d+)', text_clean)
+    under_match = re.search(r'u(\d+(?:\.\d+)?)([+-]\d+)', text_clean)
+
+    if not over_match or not under_match:
+        return None
+
+    over_line = float(over_match.group(1))
+    over_odds = int(over_match.group(2))
+    under_line = float(under_match.group(1))
+    under_odds = int(under_match.group(2))
+
+    # Si líneas difieren (raro pero pasa con líneas "movidas"), promediar
+    line = (over_line + under_line) / 2 if over_line != under_line else over_line
+
+    return {
+        'line': line,
+        'over_odds': over_odds,
+        'under_odds': under_odds,
+        'book': book,
+    }
+
+
+def _calc_ou_pick(total_runs_dratings, ou_data):
+    """
+    Decide el pick O/U del modelo DRatings comparando su proyeccion
+    contra la linea Vegas. Devuelve 'over', 'under' o None.
+
+    Margen minimo de 0.20 carreras para evitar picks borderline cuando
+    proyeccion = linea (esos casos son ruido, no senal).
+    """
+    if total_runs_dratings is None or ou_data is None:
+        return None
+
+    line = ou_data['line']
+    diff = total_runs_dratings - line
+
+    if diff >= 0.20:
+        return 'over'
+    elif diff <= -0.20:
+        return 'under'
+    return None  # Demasiado cerca de la linea, no hay senal
+
+
+# ---------------------------------------------------------------------------
+# Funcion principal
+# ---------------------------------------------------------------------------
+
 def get_dratings_predictions(sport='mlb'):
     """
     Retorna predicciones de DRatings para el deporte indicado.
 
     Returns:
-        Lista de dicts con: home, away, home_prob, away_prob,
-        home_pitcher, away_pitcher, total_runs, home_runs, away_runs.
+        Lista de dicts con (todos los campos existentes preservados):
+        - Money Line: home, away, home_prob, away_prob, home_pitcher,
+          away_pitcher, total_runs, home_runs, away_runs, home_odds_best,
+          away_odds_best.
+        - NUEVOS (Over/Under): ou_line, ou_over_odds, ou_under_odds,
+          ou_book, ou_pick ('over'|'under'|None), ou_diff (carreras
+          de diferencia entre proyeccion y linea).
     """
     url = URLS.get(sport)
     if not url:
@@ -179,7 +275,19 @@ def get_dratings_predictions(sport='mlb'):
             away_odds = int(ml_matches[0]) if len(ml_matches) > 0 else None
             home_odds = int(ml_matches[1]) if len(ml_matches) > 1 else None
 
+            # NUEVO Cell 8: Best O/U "o8½-105 / u8½-115"
+            ou_data = None
+            if len(cells) >= 9:
+                ou_data = _parse_ou_line_and_odds(cells[8])
+
+            # NUEVO Pick O/U calculado: proyeccion DRatings vs linea Vegas
+            ou_pick = _calc_ou_pick(total_runs, ou_data)
+            ou_diff = None
+            if total_runs is not None and ou_data is not None:
+                ou_diff = round(total_runs - ou_data['line'], 2)
+
             results.append({
+                # === Money Line (campos existentes — sin cambios) ===
                 'home': home_team,
                 'away': away_team,
                 'home_prob': home_prob,
@@ -191,6 +299,13 @@ def get_dratings_predictions(sport='mlb'):
                 'total_runs': total_runs,
                 'home_odds_best': home_odds,
                 'away_odds_best': away_odds,
+                # === Over/Under (NUEVOS — Fase 6) ===
+                'ou_line': ou_data['line'] if ou_data else None,
+                'ou_over_odds': ou_data['over_odds'] if ou_data else None,
+                'ou_under_odds': ou_data['under_odds'] if ou_data else None,
+                'ou_book': ou_data['book'] if ou_data else None,
+                'ou_pick': ou_pick,
+                'ou_diff': ou_diff,
             })
         except (IndexError, AttributeError, ValueError) as e:
             # Si falla una fila, continua con las demas
@@ -201,22 +316,31 @@ def get_dratings_predictions(sport='mlb'):
 
 if __name__ == '__main__':
     print("=" * 60)
-    print("TEST FETCHER DRATINGS - MLB")
+    print("TEST FETCHER DRATINGS - MLB (con O/U)")
     print("=" * 60)
 
     picks = get_dratings_predictions('mlb')
     print(f"\nTotal predicciones: {len(picks)}\n")
+
+    ou_count = sum(1 for p in picks if p['ou_pick'] is not None)
+    print(f"Picks O/U generados: {ou_count} de {len(picks)} juegos\n")
 
     for p in picks:
         pick_team = p['home'] if p['home_prob'] > p['away_prob'] else p['away']
         pick_prob = max(p['home_prob'], p['away_prob'])
 
         print(f"[{p['away']} @ {p['home']}]")
-        print(f"  Modelo: home {p['home_prob']}% | away {p['away_prob']}%")
-        print(f"  Pick: {pick_team} ({pick_prob}%)")
+        print(f"  ML pick: {pick_team} ({pick_prob}%)")
         print(f"  Pitchers: {p['away_pitcher']} vs {p['home_pitcher']}")
-        print(f"  Runs expected: away {p['away_runs_expected']} | home {p['home_runs_expected']}")
-        print(f"  Total runs: {p['total_runs']}")
+        print(f"  Runs proyectados: away {p['away_runs_expected']} | home {p['home_runs_expected']} | total {p['total_runs']}")
         if p['away_odds_best']:
             print(f"  Best ML: away {p['away_odds_best']:+d} | home {p['home_odds_best']:+d}")
+        # NUEVO bloque O/U
+        if p['ou_line'] is not None:
+            arrow = '▲' if p['ou_pick'] == 'over' else ('▼' if p['ou_pick'] == 'under' else '—')
+            pick_str = p['ou_pick'].upper() if p['ou_pick'] else 'PASS (muy cerca)'
+            print(f"  O/U: linea {p['ou_line']} ({p['ou_book']}) | over {p['ou_over_odds']:+d} / under {p['ou_under_odds']:+d}")
+            print(f"       {arrow} Pick: {pick_str} (proyeccion {p['total_runs']} vs linea {p['ou_line']}, diff {p['ou_diff']:+.2f})")
+        else:
+            print(f"  O/U: linea no disponible")
         print()
