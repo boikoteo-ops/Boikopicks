@@ -614,20 +614,6 @@ def generate_ou_picks(games):
 
         confidence = max(0, min(100, round(confidence, 1)))
 
-        # === Asignar tier basado en sources_count + agree + confidence ===
-        if sources_count == 3 and agree_count == 3 and confidence >= 50:
-            tier = 'premium'
-            tier_label = 'Premium'
-        elif sources_count >= 2 and agree_count == sources_count and confidence >= 40:
-            tier = 'solido'
-            tier_label = 'Solido'
-        elif agree_count >= 2 and confidence >= 30:
-            tier = 'valor'
-            tier_label = 'Valor'
-        else:
-            tier = 'watch'
-            tier_label = 'Watch'
-
         # === Lineas: principal + todas las disponibles ===
         principal_line = game.get('ou_principal_line')
         lines_by_source = game.get('ou_lines_by_source', {})
@@ -656,15 +642,87 @@ def generate_ou_picks(games):
             except (ValueError, AttributeError):
                 pass
 
-        # Edge real: comparar implied prob (de las odds reales) vs convicción de fuentes
-        # Solo posible si tenemos odds reales y al menos 2 fuentes que opinan
+        # === Estimacion de probabilidad real basada en CONVICCION de cada fuente ===
+        # En vez de "+5% por fuente plano", usar cuan fuerte opina cada una.
+        # Base 50%, sumar puntos segun convicción real:
+        #   - Pickswise: estrellas 1-5 → +1% a +5%
+        #   - DRatings: |ou_diff| (carreras que el modelo se aleja de la linea) → escalado
+        #   - Covers: distancia del 50/50 publico → escalado
+        estimated_prob = 50.0
+
+        # Pickswise: agregar por estrellas si opina del lado pickeado
+        if game.get('pickswise_ou_pick') == consensus_pick:
+            pw_conf = game.get('pickswise_ou_confidence') or 0
+            estimated_prob += pw_conf * 1.0  # 1-5 puntos
+
+        # DRatings: agregar por |diff| con cap a 5 puntos
+        if game.get('dratings_ou_pick') == consensus_pick:
+            dr_diff = abs(game.get('dratings_ou_diff') or 0)
+            estimated_prob += min(dr_diff * 5.0, 5.0)  # ej diff 0.44 → +2.2 / diff 1.5 → cap 5.0
+
+        # Covers: agregar por distancia desde 50% (publico fuerte)
+        if game.get('covers_ou_pick') == consensus_pick:
+            if consensus_pick == 'over':
+                cv_pct = game.get('covers_ou_pct_over') or 50
+            else:
+                cv_pct = game.get('covers_ou_pct_under') or 50
+            cv_strength = max(0, cv_pct - 50)  # 50% = 0, 75% = 25
+            estimated_prob += min(cv_strength / 5.0, 5.0)  # cap 5pts (osea 75% publico)
+
+        # Cap final: 50%-70% (somos conservadores; nadie sabe el futuro)
+        estimated_prob = min(70.0, max(50.0, estimated_prob))
+
+        # === Edge real: solo si tenemos odds reales y >= 2 fuentes acuerdan ===
         edge_real = None
         if principal_odds is not None and sources_count >= 2 and agree_count >= 2:
             implied_market = american_odds_to_implied_prob(principal_odds)
-            # Estimacion conservadora de prob: 50% base + 5% por cada fuente que acuerda
-            # (no es perfecto pero da senal hasta que tengamos histórico real)
-            estimated_prob = 50.0 + (agree_count * 5.0)
             edge_real = round(estimated_prob - implied_market, 1)
+
+            # === Impacto del edge_real en confidence ===
+            # Edge fuerte sube confianza; edge negativo la baja
+            if edge_real >= 8:
+                confidence += 12
+            elif edge_real >= 4:
+                confidence += 6
+            elif edge_real >= 1:
+                confidence += 2
+            elif edge_real >= -2:
+                pass  # neutral
+            elif edge_real >= -5:
+                confidence -= 6  # mercado paga menos que nuestra opinion
+            else:
+                confidence -= 12  # claramente sin valor
+
+            confidence = max(0, min(100, round(confidence, 1)))
+
+        # === Asignar tier (usando confidence ya ajustada por edge_real) ===
+        # Plus: si edge_real es muy fuerte (>=8), permitimos promover de tier
+        edge_bonus_premium = edge_real is not None and edge_real >= 8
+
+        if sources_count == 3 and agree_count == 3 and confidence >= 50:
+            tier = 'premium'
+            tier_label = 'Premium'
+        elif sources_count >= 2 and agree_count == sources_count and confidence >= 40:
+            tier = 'solido'
+            tier_label = 'Solido'
+            # Promocion por edge brutal: 2 fuentes acuerdan + edge_real >= 8
+            if edge_bonus_premium and confidence >= 45:
+                tier = 'premium'
+                tier_label = 'Premium'
+        elif agree_count >= 2 and confidence >= 30:
+            tier = 'valor'
+            tier_label = 'Valor'
+            # Promocion por edge brutal: edge_real >= 8 sube a Solido
+            if edge_bonus_premium and confidence >= 35:
+                tier = 'solido'
+                tier_label = 'Solido'
+        else:
+            tier = 'watch'
+            tier_label = 'Watch'
+            # Promocion: si edge_real >= 4 con al menos 2 fuentes, sube a Valor
+            if edge_real is not None and edge_real >= 4 and agree_count >= 2 and confidence >= 20:
+                tier = 'valor'
+                tier_label = 'Valor'
 
         picks.append({
             'bet_type': 'total',
