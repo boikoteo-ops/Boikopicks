@@ -207,6 +207,8 @@ def add_todays_picks_to_tracking(history):
             entry['model_prob'] = pick.get('model_prob')
             entry['edge'] = pick.get('edge')
             entry['estimated_odds'] = pick.get('estimated_odds')
+            entry['real_odds'] = pick.get('real_odds')           # NUEVO
+            entry['odds_source'] = pick.get('odds_source')       # NUEVO ('real' o 'estimated')
             entry['sources_agree'] = pick.get('sources_agree')
 
         # Crear copia temporal con date_played asignado para el key
