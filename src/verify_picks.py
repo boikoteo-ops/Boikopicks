@@ -199,6 +199,8 @@ def add_todays_picks_to_tracking(history):
             entry['side'] = pick.get('side')  # 'over' o 'under'
             entry['line'] = pick.get('line')
             entry['odds_american'] = pick.get('odds_american')
+            entry['odds_source'] = pick.get('odds_source')      # NUEVO: 'dratings' | 'pickswise' | None
+            entry['edge_real'] = pick.get('edge_real')          # NUEVO: edge estimado vs mercado
             entry['agree_count'] = pick.get('agree_count')
             entry['sources_unanimous'] = pick.get('sources_unanimous', False)
         else:
