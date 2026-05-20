@@ -59,22 +59,49 @@ function renderHeader(data) {
 function renderStats(data) {
   const totalGames = (data.summary?.total_games_mlb || 0) + (data.summary?.total_games_nba || 0);
   const totalPicks = data.summary?.total_picks || (data.picks || []).length;
+  const mlPicks = data.summary?.total_picks_ml ?? (data.picks || []).filter(p => p.bet_type !== 'total').length;
+  const ouPicks = data.summary?.total_picks_ou ?? (data.picks || []).filter(p => p.bet_type === 'total').length;
   const premium = (data.picks || []).filter(p => p.tier === 'premium').length;
 
   document.getElementById('statGames').textContent = totalGames;
-  document.getElementById('statPicks').textContent = totalPicks;
+
+  // Si hay O/U, mostrar separación; si no, número simple
+  const statPicksEl = document.getElementById('statPicks');
+  if (ouPicks > 0) {
+    statPicksEl.innerHTML = `${totalPicks}<span class="stat-breakdown">${mlPicks}ML+${ouPicks}OU</span>`;
+  } else {
+    statPicksEl.textContent = totalPicks;
+  }
+
   document.getElementById('statPremium').textContent = premium;
 
+  // Stats históricas: usar overall por defecto, pero si hay O/U verificados, mostrar tabs
   const stats = data.stats?.overall;
+  const mlStats = data.stats?.moneyline?.overall;
+  const ouStats = data.stats?.total?.overall;
+
   if (!stats || stats.verified === 0) {
     document.getElementById('histRecord').textContent = '—';
     document.getElementById('histWinRate').textContent = 'Sin datos aún';
     document.getElementById('histRoi').textContent = '—';
     document.getElementById('histStreak').textContent = '—';
+    hideHistTabs();
     return;
   }
 
-  document.getElementById('histRecord').textContent = `${stats.wins}-${stats.losses}`;
+  applyHistStats(stats);
+
+  // Mostrar tabs solo si hay O/U verificados
+  if (ouStats && ouStats.verified > 0) {
+    showHistTabs(stats, mlStats, ouStats);
+  } else {
+    hideHistTabs();
+  }
+}
+
+function applyHistStats(stats) {
+  const pushesStr = stats.pushes ? `-${stats.pushes}P` : '';
+  document.getElementById('histRecord').textContent = `${stats.wins}-${stats.losses}${pushesStr}`;
   document.getElementById('histWinRate').textContent = `${stats.win_rate}% acierto`;
 
   const roiEl = document.getElementById('histRoi');
@@ -93,11 +120,47 @@ function renderStats(data) {
   }
 }
 
+function showHistTabs(allStats, mlStats, ouStats) {
+  let tabsEl = document.getElementById('histTabs');
+  if (!tabsEl) {
+    tabsEl = document.createElement('div');
+    tabsEl.id = 'histTabs';
+    tabsEl.className = 'hist-tabs';
+    tabsEl.innerHTML = `
+      <button class="hist-tab active" data-htab="all">Todos</button>
+      <button class="hist-tab" data-htab="ml">ML</button>
+      <button class="hist-tab" data-htab="ou">O/U</button>
+    `;
+    const histStrip = document.querySelector('.hist-strip');
+    histStrip.parentNode.insertBefore(tabsEl, histStrip);
+
+    tabsEl.addEventListener('click', (e) => {
+      if (!e.target.classList.contains('hist-tab')) return;
+      tabsEl.querySelectorAll('.hist-tab').forEach(b => b.classList.remove('active'));
+      e.target.classList.add('active');
+      const which = e.target.dataset.htab;
+      if (which === 'ml') applyHistStats(mlStats);
+      else if (which === 'ou') applyHistStats(ouStats);
+      else applyHistStats(allStats);
+    });
+  }
+}
+
+function hideHistTabs() {
+  const tabsEl = document.getElementById('histTabs');
+  if (tabsEl) tabsEl.remove();
+}
+
 function renderPicks(data) {
   const container = document.getElementById('picksSection');
   let picks = data.picks || [];
 
-  if (CURRENT_FILTER !== 'all') {
+  // Filtros: tier OR bet_type
+  if (CURRENT_FILTER === 'ml') {
+    picks = picks.filter(p => p.bet_type !== 'total');
+  } else if (CURRENT_FILTER === 'ou') {
+    picks = picks.filter(p => p.bet_type === 'total');
+  } else if (CURRENT_FILTER !== 'all') {
     picks = picks.filter(p => p.tier === CURRENT_FILTER);
   }
 
@@ -115,11 +178,16 @@ function renderPicks(data) {
   let html = '';
   for (const tier of TIER_ORDER) {
     if (grouped[tier].length === 0) continue;
-    if (CURRENT_FILTER === 'all') {
+    if (CURRENT_FILTER === 'all' || CURRENT_FILTER === 'ml' || CURRENT_FILTER === 'ou') {
       html += `<div class="tier-header">${TIER_LABELS[tier]} · ${grouped[tier].length}</div>`;
     }
     for (const pick of grouped[tier]) {
-      html += renderPickCard(pick);
+      // Dispatch por bet_type
+      if (pick.bet_type === 'total') {
+        html += renderOuPickCard(pick);
+      } else {
+        html += renderPickCard(pick);
+      }
     }
   }
 
@@ -137,7 +205,6 @@ function renderSourcesBadge(pick) {
   let className = 'sources-badge';
   let label = `${count}/${total}`;
 
-  // 4/4 con acuerdo total: nivel maximo
   if (count === 4 && agree === true) {
     className += ' sources-supreme';
     label += ' ✓✓✓';
@@ -171,6 +238,9 @@ function renderDratingsBadge(pick) {
 }
 
 function renderPickCard(pick) {
+  // ============================================================
+  // PICK MONEY LINE (sin cambios respecto al diseño original)
+  // ============================================================
   const pickTeamInfo = getTeamInfo(pick.pick);
   const otherTeam = pick.pick === pick.home ? pick.away : pick.home;
   const otherTeamInfo = getTeamInfo(otherTeam);
@@ -194,6 +264,7 @@ function renderPickCard(pick) {
           <div class="pick-team-info">
             <div class="pick-team-name">
               ${pick.pick}
+              <span class="bet-badge bet-badge-ml">ML</span>
               <span class="tier-badge tier-${pick.tier}">${pick.tier.toUpperCase()}</span>
             </div>
             <div class="pick-vs">${vsText} ${otherLogoHtml} ${otherTeam} · ${pick.start_time}</div>
@@ -211,6 +282,124 @@ function renderPickCard(pick) {
       </div>
     </div>
   `;
+}
+
+function renderOuPickCard(pick) {
+  // ============================================================
+  // PICK OVER / UNDER (NUEVO)
+  // ============================================================
+  const homeInfo = getTeamInfo(pick.home);
+  const awayInfo = getTeamInfo(pick.away);
+
+  const isOver = pick.side === 'over';
+  const arrow = isOver ? '▲' : '▼';
+  const sideLabel = isOver ? 'OVER' : 'UNDER';
+  const badgeClass = isOver ? 'bet-badge-over' : 'bet-badge-under';
+
+  const awayLogoHtml = awayInfo.logo
+    ? `<img class="team-logo-mini" src="${awayInfo.logo}" alt="${awayInfo.abbr}" loading="lazy">`
+    : `<span class="team-abbr-mini">${awayInfo.abbr}</span>`;
+  const homeLogoHtml = homeInfo.logo
+    ? `<img class="team-logo-mini" src="${homeInfo.logo}" alt="${homeInfo.abbr}" loading="lazy">`
+    : `<span class="team-abbr-mini">${homeInfo.abbr}</span>`;
+
+  // Odds: si las tiene, mostrar; si no, "-"
+  const oddsRaw = pick.odds_american;
+  let oddsDisplay = '—';
+  if (oddsRaw !== null && oddsRaw !== undefined && oddsRaw !== '') {
+    const oddsNum = parseInt(oddsRaw, 10);
+    if (!isNaN(oddsNum)) {
+      oddsDisplay = oddsNum > 0 ? `+${oddsNum}` : `${oddsNum}`;
+    }
+  }
+
+  // Líneas por fuente (para mostrar detalle si hay)
+  const linesBySource = pick.lines_by_source || {};
+  const linesEntries = Object.entries(linesBySource);
+
+  // Sources badge para O/U (count/sources_total con su propia lógica)
+  const sourcesBadgeHtml = renderOuSourcesBadge(pick);
+
+  // Warning de divergencia
+  const divergenceHtml = pick.lines_diverge
+    ? `<div class="lines-diverge-warning">⚠ Las líneas difieren entre fuentes (spread ${pick.lines_spread}). Verifica la línea actual en tu sportsbook.</div>`
+    : '';
+
+  // Detalle de fuentes (DR, PW, CV) con sus respectivos picks
+  const opinionsHtml = renderOpinionsRow(pick);
+
+  return `
+    <div class="pick-card pick-card-ou tier-${pick.tier} ${isOver ? 'is-over' : 'is-under'}">
+      <div class="pick-header">
+        <div class="pick-teams pick-teams-ou">
+          <div class="pick-teams-matchup">
+            ${awayLogoHtml}
+            <span class="ou-vs">@</span>
+            ${homeLogoHtml}
+          </div>
+          <div class="pick-team-info">
+            <div class="pick-team-name">
+              <span class="bet-badge ${badgeClass}">${arrow} ${sideLabel} ${pick.line ?? '—'}</span>
+              <span class="tier-badge tier-${pick.tier}">${pick.tier.toUpperCase()}</span>
+            </div>
+            <div class="pick-vs">${pick.away} @ ${pick.home} · ${pick.start_time}</div>
+          </div>
+        </div>
+        <div class="pick-odds pick-odds-ou">${oddsDisplay}</div>
+      </div>
+      <div class="pick-stats">
+        <span class="pick-stat">conf <strong>${pick.confidence}</strong></span>
+        ${opinionsHtml}
+        ${sourcesBadgeHtml}
+      </div>
+      ${divergenceHtml}
+    </div>
+  `;
+}
+
+function renderOuSourcesBadge(pick) {
+  const count = pick.sources_count || 0;
+  const total = pick.sources_total || 3;
+  const agreeCount = pick.agree_count || 0;
+  const unanimous = pick.sources_unanimous;
+
+  if (count === 0) return '';
+
+  let className = 'sources-badge sources-badge-ou';
+  let label = `${agreeCount}/${count}`;
+
+  if (count === 3 && unanimous) {
+    className += ' sources-unanimous';
+    label += ' ✓✓';
+  } else if (count >= 2 && agreeCount === count) {
+    className += ' sources-agree';
+    label += ' ✓';
+  } else if (count > 1 && agreeCount < count) {
+    className += ' sources-partial';
+  }
+
+  return `<span class="${className}">${label}</span>`;
+}
+
+function renderOpinionsRow(pick) {
+  // Muestra los picks individuales de cada fuente: DR, PW, CV
+  const opinions = pick.opinions || [];
+  if (opinions.length === 0) return '';
+
+  const shortName = {
+    'dratings': 'DR',
+    'pickswise': 'PW',
+    'covers': 'CV'
+  };
+
+  const items = opinions.map(op => {
+    const short = shortName[op.source] || op.source.slice(0, 2).toUpperCase();
+    const symbol = op.pick === 'over' ? '↑' : '↓';
+    const cls = op.pick === 'over' ? 'op-over' : 'op-under';
+    return `<span class="opinion-chip ${cls}">${short} ${symbol}</span>`;
+  }).join('');
+
+  return `<span class="opinions-row">${items}</span>`;
 }
 
 function renderParlays(data) {
