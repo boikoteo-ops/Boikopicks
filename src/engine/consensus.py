@@ -61,6 +61,8 @@ def merge_game_data(schedule_games, numberfire_predictions, covers_predictions,
         enriched['home_prob_numberfire'] = None
         enriched['away_prob_numberfire'] = None
         enriched['has_numberfire'] = False
+        enriched['home_odds_real'] = None  # Odds reales del FanDuel Sportsbook
+        enriched['away_odds_real'] = None
 
         for pred in numberfire_predictions:
             if (_teams_match(game['home'], pred['home']) and
@@ -68,6 +70,9 @@ def merge_game_data(schedule_games, numberfire_predictions, covers_predictions,
                 enriched['home_prob_numberfire'] = pred['home_prob_model']
                 enriched['away_prob_numberfire'] = pred['away_prob_model']
                 enriched['has_numberfire'] = True
+                # NUEVO: capturar odds reales del sportsbook si vienen
+                enriched['home_odds_real'] = pred.get('home_odds_real')
+                enriched['away_odds_real'] = pred.get('away_odds_real')
                 break
 
         # Covers
@@ -215,9 +220,26 @@ def generate_picks(games, min_model_prob=52.0):
         if model_prob < min_model_prob:
             continue
 
-        market_juice = (model_prob - 50) * 0.15
-        estimated_market_prob = model_prob - market_juice
-        edge = model_prob - estimated_market_prob
+        # === Calcular edge: preferir odds REALES del sportsbook si disponibles ===
+        # Si tenemos odds_real del lado pickeado, usar implied prob real.
+        # Fallback: estimar juice como antes.
+        real_odds = None
+        if side == 'home':
+            real_odds = game.get('home_odds_real')
+        else:
+            real_odds = game.get('away_odds_real')
+
+        if real_odds is not None:
+            implied_market_prob = american_odds_to_implied_prob(real_odds)
+            edge = model_prob - implied_market_prob
+            estimated_market_prob = implied_market_prob  # ya no es estimacion
+            odds_source = 'real'
+        else:
+            # Fallback historico: estimacion de juice (-9% del modelo)
+            market_juice = (model_prob - 50) * 0.15
+            estimated_market_prob = model_prob - market_juice
+            edge = model_prob - estimated_market_prob
+            odds_source = 'estimated'
 
         # Tier inicial
         if model_prob >= 62 and edge >= 1.8:
@@ -294,6 +316,8 @@ def generate_picks(games, min_model_prob=52.0):
             'tier': tier,
             'tier_label': tier_label,
             'estimated_odds': implied_prob_to_american_odds(estimated_market_prob),
+            'real_odds': real_odds,         # NUEVO: odds reales del FanDuel SB (None si no disponibles)
+            'odds_source': odds_source,     # NUEVO: 'real' o 'estimated'
             'home_pitcher': game.get('home_pitcher'),
             'away_pitcher': game.get('away_pitcher'),
             'sources_count': game.get('sources_count', 0),
