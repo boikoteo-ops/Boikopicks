@@ -917,7 +917,25 @@
       "result": null,
       "verified_at": null,
       "tracked_at": "2026-05-20T05:07:57.385685-04:00"
+    },
+    {
+      "date_played": "2026-05-20",
+      "sport": "MLB",
+      "pick": "Cleveland Guardians",
+      "home": "Detroit Tigers",
+      "away": "Cleveland Guardians",
+      "side": "away",
+      "tier": "watch",
+      "model_prob": 53.4,
+      "edge": 0.5,
+      "confidence": 18.3,
+      "estimated_odds": -112,
+      "sources_agree": true,
+      "sources_count": 3,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-05-20T11:32:58.190199-04:00"
     }
   ],
-  "last_update": "2026-05-20T05:07:50.581999-04:00"
+  "last_update": "2026-05-20T11:32:54.646494-04:00"
 }
