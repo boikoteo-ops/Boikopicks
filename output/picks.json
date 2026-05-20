@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-20T16:35:16.532170-04:00",
+  "generated_at": "2026-05-20T16:45:58.326049-04:00",
   "date_display": "20/05/2026",
   "summary": {
     "total_games_mlb": 12,
@@ -724,8 +724,8 @@
       "has_covers_ou": true,
       "covers_ou_pick": "over",
       "covers_ou_line": 9.5,
-      "covers_ou_pct_over": 75.0,
-      "covers_ou_pct_under": 25.0,
+      "covers_ou_pct_over": 74.0,
+      "covers_ou_pct_under": 26.0,
       "ou_sources_count": 2,
       "ou_sources_total": 3,
       "ou_opinions": [
@@ -771,8 +771,8 @@
       "has_covers_ou": true,
       "covers_ou_pick": "under",
       "covers_ou_line": 7.5,
-      "covers_ou_pct_over": 43.0,
-      "covers_ou_pct_under": 57.0,
+      "covers_ou_pct_over": 42.0,
+      "covers_ou_pct_under": 58.0,
       "ou_sources_count": 1,
       "ou_sources_total": 3,
       "ou_opinions": [
@@ -986,8 +986,8 @@
       "has_covers_ou": true,
       "covers_ou_pick": "over",
       "covers_ou_line": 9.5,
-      "covers_ou_pct_over": 61.0,
-      "covers_ou_pct_under": 39.0,
+      "covers_ou_pct_over": 60.0,
+      "covers_ou_pct_under": 40.0,
       "ou_sources_count": 1,
       "ou_sources_total": 3,
       "ou_opinions": [
@@ -1089,12 +1089,12 @@
       "side": "over",
       "line": 9.5,
       "start_time": "06:45 PM",
-      "confidence": 42.0,
+      "confidence": 48.0,
       "tier": "solido",
       "tier_label": "Solido",
       "odds_american": -115,
       "odds_source": "pickswise",
-      "edge_real": 6.5,
+      "edge_real": 4.3,
       "sources_count": 2,
       "sources_total": 3,
       "sources_agree": true,
@@ -1119,13 +1119,62 @@
       "pickswise_confidence": 3,
       "covers_pick": "over",
       "covers_line": 9.5,
-      "covers_pct_over": 75.0,
-      "covers_pct_under": 25.0,
+      "covers_pct_over": 74.0,
+      "covers_pct_under": 26.0,
       "lines_by_source": {
         "pickswise": 9.5,
         "covers": 9.5
       },
       "lines_spread": 0.0,
+      "lines_diverge": false
+    },
+    {
+      "bet_type": "total",
+      "sport": "MLB",
+      "game": "Los Angeles Dodgers @ San Diego Padres",
+      "home": "San Diego Padres",
+      "away": "Los Angeles Dodgers",
+      "pick": "UNDER",
+      "side": "under",
+      "line": 7.0,
+      "start_time": "08:40 PM",
+      "confidence": 39.0,
+      "tier": "valor",
+      "tier_label": "Valor",
+      "odds_american": -115,
+      "odds_source": "pickswise",
+      "edge_real": 2.3,
+      "sources_count": 2,
+      "sources_total": 3,
+      "sources_agree": true,
+      "sources_unanimous": false,
+      "agree_count": 2,
+      "opinions": [
+        {
+          "source": "pickswise",
+          "pick": "under"
+        },
+        {
+          "source": "covers",
+          "pick": "under"
+        }
+      ],
+      "dratings_pick": null,
+      "dratings_line": null,
+      "dratings_diff": null,
+      "dratings_proj": null,
+      "pickswise_pick": "under",
+      "pickswise_line": 7.5,
+      "pickswise_confidence": 4,
+      "covers_pick": "under",
+      "covers_line": 7.0,
+      "covers_pct_over": 41.0,
+      "covers_pct_under": 59.0,
+      "lines_by_source": {
+        "pickswise": 7.5,
+        "covers": 7.0
+      },
+      "lines_spread": 0.5,
       "lines_diverge": false
     },
     {
@@ -1166,55 +1215,6 @@
     {
       "bet_type": "total",
       "sport": "MLB",
-      "game": "Los Angeles Dodgers @ San Diego Padres",
-      "home": "San Diego Padres",
-      "away": "Los Angeles Dodgers",
-      "pick": "UNDER",
-      "side": "under",
-      "line": 7.0,
-      "start_time": "08:40 PM",
-      "confidence": 37.0,
-      "tier": "valor",
-      "tier_label": "Valor",
-      "odds_american": -115,
-      "odds_source": "pickswise",
-      "edge_real": 6.5,
-      "sources_count": 2,
-      "sources_total": 3,
-      "sources_agree": true,
-      "sources_unanimous": false,
-      "agree_count": 2,
-      "opinions": [
-        {
-          "source": "pickswise",
-          "pick": "under"
-        },
-        {
-          "source": "covers",
-          "pick": "under"
-        }
-      ],
-      "dratings_pick": null,
-      "dratings_line": null,
-      "dratings_diff": null,
-      "dratings_proj": null,
-      "pickswise_pick": "under",
-      "pickswise_line": 7.5,
-      "pickswise_confidence": 4,
-      "covers_pick": "under",
-      "covers_line": 7.0,
-      "covers_pct_over": 41.0,
-      "covers_pct_under": 59.0,
-      "lines_by_source": {
-        "pickswise": 7.5,
-        "covers": 7.0
-      },
-      "lines_spread": 0.5,
-      "lines_diverge": false
-    },
-    {
-      "bet_type": "total",
-      "sport": "MLB",
       "game": "Atlanta Braves @ Miami Marlins",
       "home": "Miami Marlins",
       "away": "Atlanta Braves",
@@ -1227,7 +1227,7 @@
       "tier_label": "Valor",
       "odds_american": -115,
       "odds_source": "dratings",
-      "edge_real": 6.5,
+      "edge_real": 0.7,
       "sources_count": 2,
       "sources_total": 3,
       "sources_agree": true,
@@ -1455,8 +1455,8 @@
       "pickswise_confidence": null,
       "covers_pick": "under",
       "covers_line": 7.5,
-      "covers_pct_over": 43.0,
-      "covers_pct_under": 57.0,
+      "covers_pct_over": 42.0,
+      "covers_pct_under": 58.0,
       "lines_by_source": {
         "covers": 7.5
       },
@@ -1587,8 +1587,8 @@
       "pickswise_confidence": null,
       "covers_pick": "over",
       "covers_line": 9.5,
-      "covers_pct_over": 61.0,
-      "covers_pct_under": 39.0,
+      "covers_pct_over": 60.0,
+      "covers_pct_under": 40.0,
       "lines_by_source": {
         "covers": 9.5
       },
