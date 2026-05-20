@@ -935,7 +935,25 @@
       "result": null,
       "verified_at": null,
       "tracked_at": "2026-05-20T11:32:58.190199-04:00"
+    },
+    {
+      "date_played": "2026-05-20",
+      "sport": "MLB",
+      "pick": "Cincinnati Reds",
+      "home": "Philadelphia Phillies",
+      "away": "Cincinnati Reds",
+      "side": "away",
+      "tier": "watch",
+      "model_prob": 55.0,
+      "edge": 0.8,
+      "confidence": 2.2,
+      "estimated_odds": -119,
+      "sources_agree": false,
+      "sources_count": 2,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-05-20T13:48:21.549309-04:00"
     }
   ],
-  "last_update": "2026-05-20T12:40:28.337396-04:00"
+  "last_update": "2026-05-20T13:48:18.906831-04:00"
 }
