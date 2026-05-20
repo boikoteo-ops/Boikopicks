@@ -953,7 +953,25 @@
       "result": null,
       "verified_at": null,
       "tracked_at": "2026-05-20T13:48:21.549309-04:00"
+    },
+    {
+      "date_played": "2026-05-20",
+      "sport": "MLB",
+      "pick": "Boston Red Sox",
+      "home": "Kansas City Royals",
+      "away": "Boston Red Sox",
+      "side": "away",
+      "tier": "watch",
+      "model_prob": 52.1,
+      "edge": 0.3,
+      "confidence": 0,
+      "estimated_odds": -107,
+      "sources_agree": false,
+      "sources_count": 4,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-05-20T14:26:41.385530-04:00"
     }
   ],
-  "last_update": "2026-05-20T13:48:18.906831-04:00"
+  "last_update": "2026-05-20T14:26:37.329194-04:00"
 }
