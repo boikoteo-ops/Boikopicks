@@ -1,6 +1,10 @@
 """
 Motor de consenso: combina schedule + numberFire + Covers + Pickswise + DRatings.
 Genera picks con score de confianza y acuerdo entre fuentes.
+
+Incluye logica paralela para Over/Under (Fase 6):
+- merge_ou_data() : cruza datos O/U de DRatings + Pickswise + Covers
+- generate_ou_picks() : genera picks O/U clasificados por tier
 """
 
 
@@ -275,6 +279,7 @@ def generate_picks(games, min_model_prob=52.0):
         confidence = max(0, min(100, round(confidence, 1)))
 
         picks.append({
+            'bet_type': 'moneyline',
             'sport': game['sport'],
             'game': f"{game['away']} @ {game['home']}",
             'home': game['home'],
@@ -352,6 +357,305 @@ def suggest_parlays(picks):
         }
 
     return parlays
+
+
+# ===========================================================================
+# OVER / UNDER (Fase 6 — totales)
+# ===========================================================================
+
+def _line_to_key(line):
+    """Convierte una linea (8.5, 9.0, etc.) a string para comparar."""
+    return f"{line:.2f}" if line is not None else "?"
+
+
+def merge_ou_data(schedule_games, dratings_predictions=None,
+                  pickswise_totals=None, covers_totals=None):
+    """
+    Cruza datos O/U de las 3 fuentes (DRatings, Pickswise Totals, Covers Totals)
+    contra el schedule. Devuelve lista de juegos enriquecidos con info O/U.
+
+    NOTA: DRatings reusa sus dicts existentes (que ya tienen ou_pick, ou_line,
+    etc. desde Fase 1). Pickswise y Covers vienen de sus nuevas funciones
+    get_pickswise_totals() y get_covers_totals().
+    """
+    if dratings_predictions is None:
+        dratings_predictions = []
+    if pickswise_totals is None:
+        pickswise_totals = []
+    if covers_totals is None:
+        covers_totals = []
+
+    merged = []
+
+    for game in schedule_games:
+        enriched = {
+            'sport': game.get('sport'),
+            'home': game.get('home'),
+            'away': game.get('away'),
+            'start_time': game.get('start_time', 'TBD'),
+            # DRatings O/U
+            'has_dratings_ou': False,
+            'dratings_ou_pick': None,
+            'dratings_ou_line': None,
+            'dratings_ou_diff': None,
+            'dratings_total_runs': None,
+            'dratings_ou_book': None,
+            'dratings_ou_over_odds': None,
+            'dratings_ou_under_odds': None,
+            # Pickswise O/U
+            'has_pickswise_ou': False,
+            'pickswise_ou_pick': None,
+            'pickswise_ou_line': None,
+            'pickswise_ou_confidence': None,
+            'pickswise_ou_odds': None,
+            # Covers O/U
+            'has_covers_ou': False,
+            'covers_ou_pick': None,
+            'covers_ou_line': None,
+            'covers_ou_pct_over': None,
+            'covers_ou_pct_under': None,
+        }
+
+        # === DRatings ===
+        for pred in dratings_predictions:
+            if (_teams_match(game['home'], pred['home']) and
+                _teams_match(game['away'], pred['away'])):
+                # DRatings puede traer ou_pick=None (PASS, demasiado cerca de la linea)
+                if pred.get('ou_line') is not None:
+                    enriched['has_dratings_ou'] = True
+                    enriched['dratings_ou_pick'] = pred.get('ou_pick')  # 'over'|'under'|None (PASS)
+                    enriched['dratings_ou_line'] = pred.get('ou_line')
+                    enriched['dratings_ou_diff'] = pred.get('ou_diff')
+                    enriched['dratings_total_runs'] = pred.get('total_runs')
+                    enriched['dratings_ou_book'] = pred.get('ou_book')
+                    enriched['dratings_ou_over_odds'] = pred.get('ou_over_odds')
+                    enriched['dratings_ou_under_odds'] = pred.get('ou_under_odds')
+                break
+
+        # === Pickswise ===
+        for pred in pickswise_totals:
+            if (_teams_match(game['home'], pred['home']) and
+                _teams_match(game['away'], pred['away'])):
+                enriched['has_pickswise_ou'] = True
+                enriched['pickswise_ou_pick'] = pred.get('ou_pick')
+                enriched['pickswise_ou_line'] = pred.get('ou_line')
+                enriched['pickswise_ou_confidence'] = pred.get('ou_confidence')
+                enriched['pickswise_ou_odds'] = pred.get('ou_odds_american')
+                break
+
+        # === Covers ===
+        for pred in covers_totals:
+            if (_teams_match(game['home'], pred['home']) and
+                _teams_match(game['away'], pred['away'])):
+                enriched['has_covers_ou'] = True
+                enriched['covers_ou_pick'] = pred.get('ou_pick')
+                enriched['covers_ou_line'] = pred.get('ou_line')
+                enriched['covers_ou_pct_over'] = pred.get('ou_pct_over')
+                enriched['covers_ou_pct_under'] = pred.get('ou_pct_under')
+                break
+
+        # === Calcular consenso (Decisión 1: adaptativo — solo cuentan fuentes que opinan) ===
+        opinions = []  # lista de ('over'|'under', source_name)
+
+        # DRatings cuenta solo si dio un pick (no PASS)
+        if enriched['has_dratings_ou'] and enriched['dratings_ou_pick'] in ('over', 'under'):
+            opinions.append((enriched['dratings_ou_pick'], 'dratings'))
+
+        if enriched['has_pickswise_ou'] and enriched['pickswise_ou_pick'] in ('over', 'under'):
+            opinions.append((enriched['pickswise_ou_pick'], 'pickswise'))
+
+        if enriched['has_covers_ou'] and enriched['covers_ou_pick'] in ('over', 'under'):
+            opinions.append((enriched['covers_ou_pick'], 'covers'))
+
+        enriched['ou_sources_count'] = len(opinions)
+        enriched['ou_sources_total'] = 3
+        enriched['ou_opinions'] = opinions
+
+        if len(opinions) == 0:
+            enriched['ou_consensus_pick'] = None
+            enriched['ou_agree_count'] = 0
+            enriched['ou_sources_agree'] = None
+            enriched['ou_sources_unanimous'] = False
+        else:
+            overs = sum(1 for p, _ in opinions if p == 'over')
+            unders = sum(1 for p, _ in opinions if p == 'under')
+            if overs > unders:
+                enriched['ou_consensus_pick'] = 'over'
+                enriched['ou_agree_count'] = overs
+            elif unders > overs:
+                enriched['ou_consensus_pick'] = 'under'
+                enriched['ou_agree_count'] = unders
+            else:
+                # Empate (2/2 raro pero posible: 1 over, 1 under)
+                enriched['ou_consensus_pick'] = None
+                enriched['ou_agree_count'] = 1  # nadie gana
+            enriched['ou_sources_agree'] = (enriched['ou_agree_count'] == len(opinions)
+                                            and len(opinions) >= 2)
+            enriched['ou_sources_unanimous'] = (enriched['ou_sources_agree']
+                                                and len(opinions) >= 3)
+
+        # === Líneas (Decisión 3: mostrar todas y advertir si divergen) ===
+        lines_available = []
+        if enriched['dratings_ou_line'] is not None:
+            lines_available.append(('dratings', enriched['dratings_ou_line']))
+        if enriched['pickswise_ou_line'] is not None:
+            lines_available.append(('pickswise', enriched['pickswise_ou_line']))
+        if enriched['covers_ou_line'] is not None:
+            lines_available.append(('covers', enriched['covers_ou_line']))
+
+        enriched['ou_lines_by_source'] = dict(lines_available)
+
+        # Linea "principal" para mostrar: preferir Covers > DRatings > Pickswise
+        principal_line = None
+        for src in ('covers', 'dratings', 'pickswise'):
+            if src in enriched['ou_lines_by_source']:
+                principal_line = enriched['ou_lines_by_source'][src]
+                break
+        enriched['ou_principal_line'] = principal_line
+
+        # Detectar divergencia significativa entre lineas
+        if len(lines_available) >= 2:
+            values = [v for _, v in lines_available]
+            spread = max(values) - min(values)
+            enriched['ou_lines_spread'] = round(spread, 2)
+            enriched['ou_lines_diverge'] = spread > 0.5  # umbral arbitrario
+        else:
+            enriched['ou_lines_spread'] = 0
+            enriched['ou_lines_diverge'] = False
+
+        merged.append(enriched)
+
+    return merged
+
+
+def generate_ou_picks(games):
+    """
+    Genera picks O/U clasificados por tier.
+
+    Reusa los nombres de tiers de ML (Premium/Solido/Valor/Watch).
+    Criterio de tier basado en:
+      - cuantas fuentes acuerdan (1/1 vs 2/2 vs 3/3)
+      - magnitud de la diferencia de DRatings (si esta disponible)
+      - porcentaje de Covers (si la mayoria publica esta convencida)
+    """
+    picks = []
+
+    for game in games:
+        consensus_pick = game.get('ou_consensus_pick')
+        sources_count = game.get('ou_sources_count', 0)
+
+        # Filtro minimo: al menos 1 opinion y un pick definido
+        if not consensus_pick or sources_count == 0:
+            continue
+
+        agree_count = game.get('ou_agree_count', 0)
+        sources_agree = game.get('ou_sources_agree')
+        sources_unanimous = game.get('ou_sources_unanimous', False)
+
+        # === Calcular confianza base ===
+        # Score base: 25 puntos solo por tener consenso
+        confidence = 25.0
+
+        # Bonus por acuerdo unanime (cuantas fuentes coinciden)
+        if sources_count == 1:
+            confidence += 0   # solo 1 opinion, sin bonus
+        elif sources_count == 2 and agree_count == 2:
+            confidence += 12  # 2/2 acuerdo
+        elif sources_count == 3 and agree_count == 3:
+            confidence += 25  # 3/3 unanimo
+        elif sources_count == 3 and agree_count == 2:
+            confidence += 5   # 2/3 (un disenso)
+
+        # Bonus por magnitud de DRatings (si la fuente opina)
+        dratings_diff = game.get('dratings_ou_diff')
+        if dratings_diff is not None:
+            diff_abs = abs(dratings_diff)
+            # diff de 0.5 carreras o mas es senal fuerte
+            if diff_abs >= 0.5:
+                confidence += 8
+            elif diff_abs >= 0.3:
+                confidence += 4
+
+        # Bonus por convicción del público (Covers): si >65% del lado pickeado
+        covers_pct_over = game.get('covers_ou_pct_over')
+        covers_pct_under = game.get('covers_ou_pct_under')
+        if consensus_pick == 'over' and covers_pct_over and covers_pct_over >= 65:
+            confidence += 5
+        elif consensus_pick == 'under' and covers_pct_under and covers_pct_under >= 65:
+            confidence += 5
+
+        # Penalizacion: lineas divergen significativamente entre fuentes
+        if game.get('ou_lines_diverge'):
+            confidence -= 6
+
+        confidence = max(0, min(100, round(confidence, 1)))
+
+        # === Asignar tier basado en sources_count + agree + confidence ===
+        if sources_count == 3 and agree_count == 3 and confidence >= 50:
+            tier = 'premium'
+            tier_label = 'Premium'
+        elif sources_count >= 2 and agree_count == sources_count and confidence >= 40:
+            tier = 'solido'
+            tier_label = 'Solido'
+        elif agree_count >= 2 and confidence >= 30:
+            tier = 'valor'
+            tier_label = 'Valor'
+        else:
+            tier = 'watch'
+            tier_label = 'Watch'
+
+        # === Lineas: principal + todas las disponibles ===
+        principal_line = game.get('ou_principal_line')
+        lines_by_source = game.get('ou_lines_by_source', {})
+
+        # === Odds principales: del lado pickeado, preferir DRatings ===
+        principal_odds = None
+        if consensus_pick == 'over':
+            principal_odds = game.get('dratings_ou_over_odds')
+        else:
+            principal_odds = game.get('dratings_ou_under_odds')
+
+        picks.append({
+            'bet_type': 'total',
+            'sport': game['sport'],
+            'game': f"{game['away']} @ {game['home']}",
+            'home': game['home'],
+            'away': game['away'],
+            'pick': consensus_pick.upper(),  # 'OVER' o 'UNDER'
+            'side': consensus_pick,           # 'over' o 'under'
+            'line': principal_line,
+            'start_time': game.get('start_time', 'TBD'),
+            'confidence': confidence,
+            'tier': tier,
+            'tier_label': tier_label,
+            'odds_american': principal_odds,
+            # Consenso
+            'sources_count': sources_count,
+            'sources_total': 3,
+            'sources_agree': sources_agree,
+            'sources_unanimous': sources_unanimous,
+            'agree_count': agree_count,
+            'opinions': [{'source': src, 'pick': pk} for pk, src in game.get('ou_opinions', [])],
+            # Detalle por fuente
+            'dratings_pick': game.get('dratings_ou_pick'),
+            'dratings_line': game.get('dratings_ou_line'),
+            'dratings_diff': game.get('dratings_ou_diff'),
+            'dratings_proj': game.get('dratings_total_runs'),
+            'pickswise_pick': game.get('pickswise_ou_pick'),
+            'pickswise_line': game.get('pickswise_ou_line'),
+            'pickswise_confidence': game.get('pickswise_ou_confidence'),
+            'covers_pick': game.get('covers_ou_pick'),
+            'covers_line': game.get('covers_ou_line'),
+            'covers_pct_over': game.get('covers_ou_pct_over'),
+            'covers_pct_under': game.get('covers_ou_pct_under'),
+            # Lineas y advertencia
+            'lines_by_source': lines_by_source,
+            'lines_spread': game.get('ou_lines_spread', 0),
+            'lines_diverge': game.get('ou_lines_diverge', False),
+        })
+
+    picks.sort(key=lambda x: x['confidence'], reverse=True)
+    return picks
 
 
 if __name__ == '__main__':
