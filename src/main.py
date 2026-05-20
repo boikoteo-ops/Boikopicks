@@ -188,7 +188,8 @@ def run_pipeline():
                         badges += f" PW:{p['pickswise_confidence']}⭐"
                     if p.get('has_dratings'):
                         badges += f" DR:{p['dratings_prob']}%"
-                    print(f"  [{p['sport']}] {p['pick']:.<32} {p['model_prob']}% | edge +{p['edge']}% | conf {p['confidence']} {badges}")
+                    edge_str = f"+{p['edge']}" if p['edge'] >= 0 else f"{p['edge']}"
+                    print(f"  [{p['sport']}] {p['pick']:.<32} {p['model_prob']}% | edge {edge_str}% | conf {p['confidence']} {badges}")
 
         print(f"\n{'=' * 60}")
         print(f"STATS HISTORICAS")
