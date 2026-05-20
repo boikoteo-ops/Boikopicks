@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-20T15:12:00.568143-04:00",
+  "generated_at": "2026-05-20T15:15:12.569315-04:00",
   "date_display": "20/05/2026",
   "summary": {
     "total_games_mlb": 15,
@@ -143,18 +143,18 @@
       "pickswise_confidence": null,
       "pickswise_pick_team": null,
       "has_pickswise": false,
-      "home_prob_dratings": 42.3,
-      "away_prob_dratings": 57.7,
-      "dratings_total_runs": 10.41,
-      "dratings_home_runs": 4.8,
-      "dratings_away_runs": 5.61,
-      "has_dratings": true,
-      "home_prob_model": 39.3,
-      "away_prob_model": 60.7,
+      "home_prob_dratings": null,
+      "away_prob_dratings": null,
+      "dratings_total_runs": null,
+      "dratings_home_runs": null,
+      "dratings_away_runs": null,
+      "has_dratings": false,
+      "home_prob_model": 36.4,
+      "away_prob_model": 63.6,
       "has_model_prediction": true,
-      "sources_count": 2,
+      "sources_count": 1,
       "sources_total": 4,
-      "sources_agree": true,
+      "sources_agree": null,
       "sources_unanimous": false
     },
     {
@@ -582,6 +582,7 @@
   ],
   "picks": [
     {
+      "bet_type": "moneyline",
       "sport": "MLB",
       "game": "Toronto Blue Jays @ New York Yankees",
       "home": "New York Yankees",
@@ -614,6 +615,7 @@
       "dratings_away_runs": 3.12
     },
     {
+      "bet_type": "moneyline",
       "sport": "MLB",
       "game": "Baltimore Orioles @ Tampa Bay Rays",
       "home": "Tampa Bay Rays",
@@ -646,6 +648,7 @@
       "dratings_away_runs": null
     },
     {
+      "bet_type": "moneyline",
       "sport": "MLB",
       "game": "Athletics @ Los Angeles Angels",
       "home": "Los Angeles Angels",
@@ -678,6 +681,7 @@
       "dratings_away_runs": 5.01
     },
     {
+      "bet_type": "moneyline",
       "sport": "MLB",
       "game": "Atlanta Braves @ Miami Marlins",
       "home": "Miami Marlins",
@@ -710,6 +714,7 @@
       "dratings_away_runs": 4.44
     },
     {
+      "bet_type": "moneyline",
       "sport": "MLB",
       "game": "Los Angeles Dodgers @ San Diego Padres",
       "home": "San Diego Padres",
@@ -742,6 +747,7 @@
       "dratings_away_runs": 4.37
     },
     {
+      "bet_type": "moneyline",
       "sport": "MLB",
       "game": "San Francisco Giants @ Arizona Diamondbacks",
       "home": "Arizona Diamondbacks",
@@ -774,6 +780,7 @@
       "dratings_away_runs": 3.99
     },
     {
+      "bet_type": "moneyline",
       "sport": "MLB",
       "game": "Texas Rangers @ Colorado Rockies",
       "home": "Colorado Rockies",
@@ -781,31 +788,32 @@
       "pick": "Texas Rangers",
       "side": "away",
       "start_time": "03:10 PM",
-      "model_prob": 60.7,
-      "estimated_implied_prob": 59.1,
-      "edge": 1.6,
-      "confidence": 31.2,
-      "tier": "solido",
-      "tier_label": "Solido",
-      "estimated_odds": -144,
+      "model_prob": 63.6,
+      "estimated_implied_prob": 61.6,
+      "edge": 2.0,
+      "confidence": 33.3,
+      "tier": "premium",
+      "tier_label": "Premium",
+      "estimated_odds": -160,
       "home_pitcher": "Kyle Freeland",
       "away_pitcher": "Jack Leiter",
-      "sources_count": 2,
+      "sources_count": 1,
       "sources_total": 4,
-      "sources_agree": true,
+      "sources_agree": null,
       "sources_unanimous": false,
       "numberfire_prob": 63.6,
       "covers_pct": null,
       "pickswise_prob": null,
       "pickswise_confidence": null,
       "has_pickswise": false,
-      "dratings_prob": 57.7,
-      "has_dratings": true,
-      "dratings_total_runs": 10.41,
-      "dratings_home_runs": 4.8,
-      "dratings_away_runs": 5.61
+      "dratings_prob": null,
+      "has_dratings": false,
+      "dratings_total_runs": null,
+      "dratings_home_runs": null,
+      "dratings_away_runs": null
     },
     {
+      "bet_type": "moneyline",
       "sport": "MLB",
       "game": "Cleveland Guardians @ Detroit Tigers",
       "home": "Detroit Tigers",
@@ -838,6 +846,7 @@
       "dratings_away_runs": 4.03
     },
     {
+      "bet_type": "moneyline",
       "sport": "MLB",
       "game": "Houston Astros @ Minnesota Twins",
       "home": "Minnesota Twins",
@@ -870,6 +879,7 @@
       "dratings_away_runs": null
     },
     {
+      "bet_type": "moneyline",
       "sport": "NBA",
       "game": "San Antonio Spurs @ Oklahoma City Thunder",
       "home": "Oklahoma City Thunder",
@@ -902,6 +912,7 @@
       "dratings_away_runs": null
     },
     {
+      "bet_type": "moneyline",
       "sport": "MLB",
       "game": "Pittsburgh Pirates @ St. Louis Cardinals",
       "home": "St. Louis Cardinals",
@@ -934,6 +945,7 @@
       "dratings_away_runs": 3.6
     },
     {
+      "bet_type": "moneyline",
       "sport": "MLB",
       "game": "Cincinnati Reds @ Philadelphia Phillies",
       "home": "Philadelphia Phillies",
@@ -966,6 +978,7 @@
       "dratings_away_runs": null
     },
     {
+      "bet_type": "moneyline",
       "sport": "MLB",
       "game": "Chicago White Sox @ Seattle Mariners",
       "home": "Seattle Mariners",
@@ -998,6 +1011,7 @@
       "dratings_away_runs": 3.44
     },
     {
+      "bet_type": "moneyline",
       "sport": "MLB",
       "game": "Boston Red Sox @ Kansas City Royals",
       "home": "Kansas City Royals",
