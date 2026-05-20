@@ -72,11 +72,13 @@ def calculate_stats(tracked_picks, last_n_days=None, tier_filter=None, bet_type_
     total_returned = 0.0
 
     for p in wins:
-        # Para ML usar estimated_odds; para O/U usar odds_american
+        # Para ML: preferir real_odds (FanDuel Sportsbook) sobre estimated_odds
+        # Para O/U: usar odds_american
         if p.get('bet_type') == 'total':
             odds = p.get('odds_american')
         else:
-            odds = p.get('estimated_odds')
+            # Prefiere real_odds si esta disponible (mas preciso)
+            odds = p.get('real_odds') or p.get('estimated_odds')
         decimal = american_odds_to_decimal(odds)
         if decimal:
             total_returned += decimal
