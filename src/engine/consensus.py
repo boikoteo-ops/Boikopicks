@@ -632,12 +632,39 @@ def generate_ou_picks(games):
         principal_line = game.get('ou_principal_line')
         lines_by_source = game.get('ou_lines_by_source', {})
 
-        # === Odds principales: del lado pickeado, preferir DRatings ===
+        # === Odds principales del lado pickeado ===
+        # Preferencia: DRatings (odds Vegas exactas) > Pickswise (odds del handicapper)
+        # Si ninguno opina, dejar None (stats usara -110 estandar como fallback)
         principal_odds = None
+        odds_source = None
+
         if consensus_pick == 'over':
-            principal_odds = game.get('dratings_ou_over_odds')
+            dr_odds = game.get('dratings_ou_over_odds')
+            pw_odds_str = game.get('pickswise_ou_odds') if game.get('pickswise_ou_pick') == 'over' else None
         else:
-            principal_odds = game.get('dratings_ou_under_odds')
+            dr_odds = game.get('dratings_ou_under_odds')
+            pw_odds_str = game.get('pickswise_ou_odds') if game.get('pickswise_ou_pick') == 'under' else None
+
+        if dr_odds is not None:
+            principal_odds = dr_odds
+            odds_source = 'dratings'
+        elif pw_odds_str:
+            # Pickswise viene como string ej '-110' o '+105' — parsear
+            try:
+                principal_odds = int(str(pw_odds_str).strip().replace('+', ''))
+                odds_source = 'pickswise'
+            except (ValueError, AttributeError):
+                pass
+
+        # Edge real: comparar implied prob (de las odds reales) vs convicción de fuentes
+        # Solo posible si tenemos odds reales y al menos 2 fuentes que opinan
+        edge_real = None
+        if principal_odds is not None and sources_count >= 2 and agree_count >= 2:
+            implied_market = american_odds_to_implied_prob(principal_odds)
+            # Estimacion conservadora de prob: 50% base + 5% por cada fuente que acuerda
+            # (no es perfecto pero da senal hasta que tengamos histórico real)
+            estimated_prob = 50.0 + (agree_count * 5.0)
+            edge_real = round(estimated_prob - implied_market, 1)
 
         picks.append({
             'bet_type': 'total',
@@ -653,6 +680,8 @@ def generate_ou_picks(games):
             'tier': tier,
             'tier_label': tier_label,
             'odds_american': principal_odds,
+            'odds_source': odds_source,         # NUEVO: 'dratings' | 'pickswise' | None
+            'edge_real': edge_real,             # NUEVO: edge estimado (None si no calculable)
             # Consenso
             'sources_count': sources_count,
             'sources_total': 3,
