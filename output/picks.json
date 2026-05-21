@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-21T13:58:53.600899-04:00",
+  "generated_at": "2026-05-21T15:02:03.332595-04:00",
   "date_display": "21/05/2026",
   "summary": {
     "total_games_mlb": 7,
@@ -187,8 +187,8 @@
       "has_numberfire": true,
       "home_odds_real": -148,
       "away_odds_real": 126,
-      "home_pct_covers": 63.0,
-      "away_pct_covers": 37.0,
+      "home_pct_covers": 62.0,
+      "away_pct_covers": 38.0,
       "has_covers": true,
       "home_prob_pickswise": null,
       "away_prob_pickswise": null,
@@ -201,8 +201,8 @@
       "dratings_home_runs": 4.66,
       "dratings_away_runs": 3.38,
       "has_dratings": true,
-      "home_prob_model": 60.7,
-      "away_prob_model": 39.3,
+      "home_prob_model": 60.4,
+      "away_prob_model": 39.6,
       "has_model_prediction": true,
       "sources_count": 3,
       "sources_total": 4,
@@ -261,8 +261,8 @@
       "has_numberfire": true,
       "home_odds_real": -205,
       "away_odds_real": 172,
-      "home_pct_covers": 77.0,
-      "away_pct_covers": 23.0,
+      "home_pct_covers": 76.0,
+      "away_pct_covers": 24.0,
       "has_covers": true,
       "home_prob_pickswise": null,
       "away_prob_pickswise": null,
@@ -275,8 +275,8 @@
       "dratings_home_runs": 5.16,
       "dratings_away_runs": 3.77,
       "has_dratings": true,
-      "home_prob_model": 69.8,
-      "away_prob_model": 30.2,
+      "home_prob_model": 69.5,
+      "away_prob_model": 30.5,
       "has_model_prediction": true,
       "sources_count": 3,
       "sources_total": 4,
@@ -415,8 +415,8 @@
       "has_covers_ou": true,
       "covers_ou_pick": "over",
       "covers_ou_line": 7.5,
-      "covers_ou_pct_over": 64.0,
-      "covers_ou_pct_under": 36.0,
+      "covers_ou_pct_over": 65.0,
+      "covers_ou_pct_under": 35.0,
       "ou_sources_count": 1,
       "ou_sources_total": 3,
       "ou_opinions": [
@@ -499,8 +499,8 @@
       "has_covers_ou": true,
       "covers_ou_pick": "over",
       "covers_ou_line": 8.5,
-      "covers_ou_pct_over": 66.0,
-      "covers_ou_pct_under": 34.0,
+      "covers_ou_pct_over": 65.0,
+      "covers_ou_pct_under": 35.0,
       "ou_sources_count": 2,
       "ou_sources_total": 3,
       "ou_opinions": [
@@ -547,8 +547,8 @@
       "has_covers_ou": true,
       "covers_ou_pick": "over",
       "covers_ou_line": 8.5,
-      "covers_ou_pct_over": 59.0,
-      "covers_ou_pct_under": 41.0,
+      "covers_ou_pct_over": 60.0,
+      "covers_ou_pct_under": 40.0,
       "ou_sources_count": 1,
       "ou_sources_total": 3,
       "ou_opinions": [
@@ -626,10 +626,10 @@
       "pick": "Arizona Diamondbacks",
       "side": "home",
       "start_time": "09:40 PM",
-      "model_prob": 69.8,
+      "model_prob": 69.5,
       "estimated_implied_prob": 67.2,
-      "edge": 2.6,
-      "confidence": 57.4,
+      "edge": 2.3,
+      "confidence": 55.9,
       "tier": "premium",
       "tier_label": "Premium",
       "estimated_odds": -205,
@@ -642,7 +642,7 @@
       "sources_agree": true,
       "sources_unanimous": true,
       "numberfire_prob": 69.2,
-      "covers_pct": 77.0,
+      "covers_pct": 76.0,
       "pickswise_prob": null,
       "pickswise_confidence": null,
       "has_pickswise": false,
@@ -716,7 +716,7 @@
       "tier_label": "Solido",
       "odds_american": -115,
       "odds_source": "dratings",
-      "edge_real": 2.7,
+      "edge_real": 2.5,
       "sources_count": 2,
       "sources_total": 3,
       "sources_agree": true,
@@ -741,8 +741,8 @@
       "pickswise_confidence": 3,
       "covers_pick": "over",
       "covers_line": 8.5,
-      "covers_pct_over": 66.0,
-      "covers_pct_under": 34.0,
+      "covers_pct_over": 65.0,
+      "covers_pct_under": 35.0,
       "lines_by_source": {
         "dratings": 8.0,
         "pickswise": 8.0,
@@ -760,12 +760,12 @@
       "pick": "New York Yankees",
       "side": "home",
       "start_time": "07:05 PM",
-      "model_prob": 60.7,
+      "model_prob": 60.4,
       "estimated_implied_prob": 59.7,
-      "edge": 1.0,
-      "confidence": 34.5,
-      "tier": "solido",
-      "tier_label": "Solido",
+      "edge": 0.7,
+      "confidence": 33.0,
+      "tier": "watch",
+      "tier_label": "Watch",
       "estimated_odds": -148,
       "real_odds": -148,
       "odds_source": "real",
@@ -776,7 +776,7 @@
       "sources_agree": true,
       "sources_unanimous": true,
       "numberfire_prob": 56.9,
-      "covers_pct": 63.0,
+      "covers_pct": 62.0,
       "pickswise_prob": null,
       "pickswise_confidence": null,
       "has_pickswise": false,
@@ -796,7 +796,7 @@
       "side": "over",
       "line": 7.5,
       "start_time": "04:05 PM",
-      "confidence": 25.0,
+      "confidence": 30.0,
       "tier": "watch",
       "tier_label": "Watch",
       "odds_american": null,
@@ -822,8 +822,8 @@
       "pickswise_confidence": null,
       "covers_pick": "over",
       "covers_line": 7.5,
-      "covers_pct_over": 64.0,
-      "covers_pct_under": 36.0,
+      "covers_pct_over": 65.0,
+      "covers_pct_under": 35.0,
       "lines_by_source": {
         "covers": 7.5
       },
@@ -910,8 +910,8 @@
       "pickswise_confidence": null,
       "covers_pick": "over",
       "covers_line": 8.5,
-      "covers_pct_over": 59.0,
-      "covers_pct_under": 41.0,
+      "covers_pct_over": 60.0,
+      "covers_pct_under": 40.0,
       "lines_by_source": {
         "covers": 8.5
       },
@@ -1059,28 +1059,7 @@
       "dratings_away_runs": 4.35
     }
   ],
-  "parlays": {
-    "conservador": {
-      "legs": [
-        {
-          "pick": "Arizona Diamondbacks",
-          "game": "Colorado Rockies @ Arizona Diamondbacks",
-          "tier": "premium"
-        },
-        {
-          "pick": "New York Yankees",
-          "game": "Toronto Blue Jays @ New York Yankees",
-          "tier": "solido"
-        },
-        {
-          "pick": "Pittsburgh Pirates",
-          "game": "Pittsburgh Pirates @ St. Louis Cardinals",
-          "tier": "valor"
-        }
-      ],
-      "probability": 23.9
-    }
-  },
+  "parlays": {},
   "stats": {
     "overall": {
       "total": 86,
