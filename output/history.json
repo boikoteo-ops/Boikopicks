@@ -1180,7 +1180,28 @@
       "odds_american": null,
       "agree_count": 1,
       "sources_unanimous": false
+    },
+    {
+      "date_played": "2026-05-20",
+      "sport": "MLB",
+      "bet_type": "total",
+      "home": "San Diego Padres",
+      "away": "Los Angeles Dodgers",
+      "pick": "UNDER",
+      "tier": "watch",
+      "confidence": 25.0,
+      "sources_count": 1,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-05-20T21:30:46.752792-04:00",
+      "side": "under",
+      "line": 7.5,
+      "odds_american": -115,
+      "odds_source": "pickswise",
+      "edge_real": null,
+      "agree_count": 1,
+      "sources_unanimous": false
     }
   ],
-  "last_update": "2026-05-20T19:02:09.831754-04:00"
+  "last_update": "2026-05-20T21:30:43.878510-04:00"
 }
