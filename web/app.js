@@ -65,10 +65,10 @@ function renderStats(data) {
 
   document.getElementById('statGames').textContent = totalGames;
 
-  // Si hay O/U, mostrar separación; si no, número simple
+  // Si hay O/U, mostrar separación clara en segunda línea; si no, número simple
   const statPicksEl = document.getElementById('statPicks');
   if (ouPicks > 0) {
-    statPicksEl.innerHTML = `${totalPicks}<span class="stat-breakdown">${mlPicks}ML+${ouPicks}OU</span>`;
+    statPicksEl.innerHTML = `${totalPicks}<span class="stat-breakdown">${mlPicks} ML · ${ouPicks} O/U</span>`;
   } else {
     statPicksEl.textContent = totalPicks;
   }
@@ -256,6 +256,9 @@ function renderPickCard(pick) {
     ? `<img class="team-logo-mini" src="${otherTeamInfo.logo}" alt="${otherTeamInfo.abbr}" loading="lazy">`
     : `<span style="font-weight:600;">${otherTeamInfo.abbr}</span>`;
 
+  // Formato edge: signo + para positivo, - automático para negativo
+  const edgeStr = pick.edge >= 0 ? `+${pick.edge}` : `${pick.edge}`;
+
   return `
     <div class="pick-card tier-${pick.tier}">
       <div class="pick-header">
@@ -274,7 +277,7 @@ function renderPickCard(pick) {
       </div>
       <div class="pick-stats">
         <span class="pick-stat highlight"><strong>${pick.model_prob}%</strong> modelo</span>
-        <span class="pick-stat">edge <strong>+${pick.edge}%</strong></span>
+        <span class="pick-stat">edge <strong>${edgeStr}%</strong></span>
         <span class="pick-stat">conf <strong>${pick.confidence}</strong></span>
         ${renderPickswiseBadge(pick)}
         ${renderDratingsBadge(pick)}
