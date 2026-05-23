@@ -270,6 +270,32 @@ def _get_games_cached():
         print(f"   Parley Center: {len(prob_headers)} bloques PROBABILIDADES encontrados")
         if not prob_headers:
             print("   Parley Center: no se encontraron bloques PROBABILIDADES")
+
+        # === DEBUG: dump del entorno del PRIMER bloque para diagnosticar parsing ===
+        if prob_headers:
+            first_prob = prob_headers[0]
+            print(f"   === DEBUG primer bloque PROBABILIDADES ===")
+            print(f"   parent tag: {first_prob.parent.name if first_prob.parent else 'None'}")
+            # Imprimir los 5 elementos anteriores con su tag y texto corto
+            print(f"   Elementos anteriores (find_previous chain):")
+            cur = first_prob
+            for i in range(8):
+                cur = cur.find_previous(True)
+                if cur is None:
+                    break
+                txt = cur.get_text(' ', strip=True)[:80]
+                print(f"     [-{i+1}] <{cur.name}> {txt!r}")
+            # Imprimir los siguientes 8 hermanos
+            print(f"   Hermanos siguientes (next_sibling chain):")
+            cur = first_prob
+            for i in range(15):
+                cur = cur.find_next_sibling()
+                if cur is None:
+                    break
+                txt = cur.get_text(' ', strip=True)[:80]
+                print(f"     [+{i+1}] <{cur.name}> {txt!r}")
+            print(f"   === FIN DEBUG ===")
+
         for prob_h in prob_headers:
             try:
                 game = _parse_game_block(prob_h)
