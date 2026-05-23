@@ -14,6 +14,7 @@ from src.fetchers.fanduel_odds import get_fanduel_predictions
 from src.fetchers.covers_consensus import get_covers_consensus, get_covers_totals
 from src.fetchers.pickswise import get_pickswise_picks, get_pickswise_totals
 from src.fetchers.dratings import get_dratings_predictions
+from src.fetchers.parley_center import get_parley_center_predictions, get_parley_center_totals
 from src.engine.consensus import (
     merge_game_data, generate_picks, suggest_parlays,
     merge_ou_data, generate_ou_picks,
@@ -73,12 +74,17 @@ def run_pipeline():
     # DRatings ya trae O/U embebido en sus dicts (campos ou_pick, ou_line, etc.)
     print(f"    MLB: {len(mlb_dratings)} | NBA: {len(nba_dratings)}")
 
+    print("  Parley Center (latino)...")
+    mlb_parley = get_parley_center_predictions('mlb')
+    mlb_parley_ou = get_parley_center_totals('mlb')
+    print(f"    MLB ML: {len(mlb_parley)} | MLB O/U: {len(mlb_parley_ou)}")
+
     # 4. Cruce y picks
     print("\n[4/5] Cruzando datos y generando picks...")
 
     # ---- Money Line (sin cambios) ----
     mlb_merged = merge_game_data(
-        mlb_games, mlb_numberfire, mlb_covers, mlb_pickswise, mlb_dratings
+        mlb_games, mlb_numberfire, mlb_covers, mlb_pickswise, mlb_dratings, mlb_parley
     )
     nba_merged = merge_game_data(
         nba_games, nba_numberfire, nba_covers, nba_pickswise, nba_dratings
@@ -90,7 +96,7 @@ def run_pipeline():
 
     # ---- Over/Under (NUEVO — solo MLB por ahora) ----
     mlb_ou_merged = merge_ou_data(
-        mlb_games, mlb_dratings, mlb_pickswise_ou, mlb_covers_ou
+        mlb_games, mlb_dratings, mlb_pickswise_ou, mlb_covers_ou, mlb_parley_ou
     )
     ou_picks = generate_ou_picks(mlb_ou_merged)
 
@@ -115,8 +121,8 @@ def run_pipeline():
             'total_picks_ml': len(ml_picks),
             'total_picks_ou': len(ou_picks),
             'sports_active': [s for s, count in [('MLB', len(mlb_games)), ('NBA', len(nba_games))] if count > 0],
-            'sources_used': ['numberFire', 'Covers Consensus', 'Pickswise', 'DRatings'],
-            'sources_ou_used': ['DRatings', 'Pickswise', 'Covers'],
+            'sources_used': ['numberFire', 'Covers Consensus', 'Pickswise', 'DRatings', 'Parley Center'],
+            'sources_ou_used': ['DRatings', 'Pickswise', 'Covers', 'Parley Center'],
         },
         'games': all_games,
         'games_ou': mlb_ou_merged,  # detalle O/U para depurar / frontend
@@ -176,7 +182,8 @@ def run_pipeline():
                 else:
                     # Pick ML (formato original)
                     sc = p.get('sources_count', 0)
-                    badges = f"[{sc}/4"
+                    st = p.get('sources_total', 5)
+                    badges = f"[{sc}/{st}"
                     if p.get('sources_unanimous'):
                         badges += " ✓✓"
                     elif p.get('sources_agree'):
@@ -188,6 +195,8 @@ def run_pipeline():
                         badges += f" PW:{p['pickswise_confidence']}⭐"
                     if p.get('has_dratings'):
                         badges += f" DR:{p['dratings_prob']}%"
+                    if p.get('has_parley'):
+                        badges += f" PL:{p['parley_prob']:.0f}%"
                     edge_str = f"+{p['edge']}" if p['edge'] >= 0 else f"{p['edge']}"
                     print(f"  [{p['sport']}] {p['pick']:.<32} {p['model_prob']}% | edge {edge_str}% | conf {p['confidence']} {badges}")
 
