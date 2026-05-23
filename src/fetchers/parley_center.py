@@ -132,7 +132,16 @@ _CACHED = False
 def _fetch_html():
     try:
         resp = requests.get(URL, headers=HEADERS, timeout=TIMEOUT)
+        print(f"   Parley Center HTTP status: {resp.status_code}")
+        print(f"   Parley Center bytes: {len(resp.text)}")
         resp.raise_for_status()
+        # Sanity check: ¿el HTML contiene el marcador esperado?
+        if "PROBABILIDADES" in resp.text.upper():
+            print(f"   Parley Center: marcador PROBABILIDADES encontrado en HTML")
+        else:
+            print(f"   Parley Center: marcador PROBABILIDADES NO encontrado en HTML")
+            # Imprimir primeros 500 chars para inspeccionar
+            print(f"   Parley Center sample: {resp.text[:500]}")
         return resp.text
     except Exception as e:
         print(f"   Parley Center fetch error: {e}")
@@ -258,6 +267,7 @@ def _get_games_cached():
             h for h in soup.find_all("h5")
             if "PROBABILIDADES" in h.get_text(strip=True).upper()
         ]
+        print(f"   Parley Center: {len(prob_headers)} bloques PROBABILIDADES encontrados")
         if not prob_headers:
             print("   Parley Center: no se encontraron bloques PROBABILIDADES")
         for prob_h in prob_headers:
