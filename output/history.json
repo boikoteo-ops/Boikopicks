@@ -3007,7 +3007,28 @@
       "real_odds": -142,
       "odds_source": "real",
       "sources_agree": false
+    },
+    {
+      "date_played": "2026-05-23",
+      "sport": "MLB",
+      "bet_type": "total",
+      "home": "Philadelphia Phillies",
+      "away": "Cleveland Guardians",
+      "pick": "OVER",
+      "tier": "watch",
+      "confidence": 25.0,
+      "sources_count": 1,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-05-23T07:39:17.276897-04:00",
+      "side": "over",
+      "line": 7.5,
+      "odds_american": null,
+      "odds_source": null,
+      "edge_real": null,
+      "agree_count": 1,
+      "sources_unanimous": false
     }
   ],
-  "last_update": "2026-05-23T06:06:09.385006-04:00"
+  "last_update": "2026-05-23T07:39:12.782058-04:00"
 }
