@@ -109,7 +109,9 @@ def run_pipeline():
 
     print(f"      Total juegos analizados: {len(all_games)}")
     print(f"      Picks ML: {len(ml_picks)} | Picks O/U: {len(ou_picks)}")
-    print(f"      Picks recomendados: {len(picks)}")
+    recommended_count = sum(1 for p in picks if p.get('recommended', True))
+    info_only_count = len(picks) - recommended_count
+    print(f"      Picks recomendados: {recommended_count} ({info_only_count} info-only adicionales)")
 
     output = {
         'generated_at': now.isoformat(),
@@ -158,12 +160,17 @@ def run_pipeline():
 
     # Resumen
     if picks:
+        # Separar recomendados de info-only
+        recommended_picks = [p for p in picks if p.get('recommended', True)]
+        info_only_picks = [p for p in picks if not p.get('recommended', True)]
+
         by_tier = {'premium': [], 'solido': [], 'valor': [], 'watch': []}
-        for p in picks:
+        for p in recommended_picks:
             by_tier[p['tier']].append(p)
 
         print("\n" + "=" * 60)
-        print(f"PICKS DE HOY ({len(picks)} en total — {len(ml_picks)} ML + {len(ou_picks)} O/U)")
+        total_msg = f"PICKS DE HOY ({len(recommended_picks)} recomendados + {len(info_only_picks)} info only — {len(ml_picks)} ML + {len(ou_picks)} O/U total)"
+        print(total_msg)
         print("=" * 60)
 
         for tier_key, tier_emoji in [('premium', 'PREMIUM'), ('solido', 'SOLIDO'),
@@ -178,7 +185,11 @@ def run_pipeline():
                     arrow = '▲' if p['side'] == 'over' else '▼'
                     line = p.get('line', '?')
                     diverge = ' ⚠divergen' if p.get('lines_diverge') else ''
-                    print(f"  [{p['sport']}] {p['game']:.<40} {arrow} {p['pick']} {line} | conf {p['confidence']} [{p['agree_count']}/{p['sources_count']}]{diverge}")
+                    # Fix 2: warning visual cuando DRatings provee odds en O/U
+                    odds_warn = ''
+                    if p.get('odds_source') == 'dratings':
+                        odds_warn = ' ⚠DR-odds'  # las odds de DRatings drenaron ROI -43% historicamente
+                    print(f"  [{p['sport']}] {p['game']:.<40} {arrow} {p['pick']} {line} | conf {p['confidence']} [{p['agree_count']}/{p['sources_count']}]{diverge}{odds_warn}")
                 else:
                     # Pick ML (formato original)
                     sc = p.get('sources_count', 0)
@@ -199,6 +210,18 @@ def run_pipeline():
                         badges += f" PL:{p['parley_prob']:.0f}%"
                     edge_str = f"+{p['edge']}" if p['edge'] >= 0 else f"{p['edge']}"
                     print(f"  [{p['sport']}] {p['pick']:.<32} {p['model_prob']}% | edge {edge_str}% | conf {p['confidence']} {badges}")
+
+        # Imprimir info-only en una seccion aparte
+        if info_only_picks:
+            print(f"\n-- INFO ONLY ({len(info_only_picks)}) — 1 sola fuente, no recomendados --")
+            for p in info_only_picks:
+                if p.get('bet_type') == 'total':
+                    arrow = '▲' if p['side'] == 'over' else '▼'
+                    line = p.get('line', '?')
+                    odds_warn = ''
+                    if p.get('odds_source') == 'dratings':
+                        odds_warn = ' ⚠DR-odds'
+                    print(f"  [{p['sport']}] {p['game']:.<40} {arrow} {p['pick']} {line} | [1 fuente]{odds_warn}")
 
         print(f"\n{'=' * 60}")
         print(f"STATS HISTORICAS")
