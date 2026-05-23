@@ -11,6 +11,7 @@ const TIER_ORDER = ['premium', 'solido', 'valor', 'watch'];
 
 let CURRENT_DATA = null;
 let CURRENT_FILTER = 'all';
+let INFO_EXPANDED = false;
 
 async function loadPicks() {
   try {
@@ -65,7 +66,6 @@ function renderStats(data) {
 
   document.getElementById('statGames').textContent = totalGames;
 
-  // Si hay O/U, mostrar separación clara en segunda línea; si no, número simple
   const statPicksEl = document.getElementById('statPicks');
   if (ouPicks > 0) {
     statPicksEl.innerHTML = `${totalPicks}<span class="stat-breakdown">${mlPicks} ML · ${ouPicks} O/U</span>`;
@@ -75,7 +75,6 @@ function renderStats(data) {
 
   document.getElementById('statPremium').textContent = premium;
 
-  // Stats históricas: usar overall por defecto, pero si hay O/U verificados, mostrar tabs
   const stats = data.stats?.overall;
   const mlStats = data.stats?.moneyline?.overall;
   const ouStats = data.stats?.total?.overall;
@@ -91,7 +90,6 @@ function renderStats(data) {
 
   applyHistStats(stats);
 
-  // Mostrar tabs solo si hay O/U verificados
   if (ouStats && ouStats.verified > 0) {
     showHistTabs(stats, mlStats, ouStats);
   } else {
@@ -155,7 +153,7 @@ function renderPicks(data) {
   const container = document.getElementById('picksSection');
   let picks = data.picks || [];
 
-  // Filtros: tier OR bet_type
+  // Filtros: tipo (ml/ou) o tier
   if (CURRENT_FILTER === 'ml') {
     picks = picks.filter(p => p.bet_type !== 'total');
   } else if (CURRENT_FILTER === 'ou') {
@@ -164,25 +162,29 @@ function renderPicks(data) {
     picks = picks.filter(p => p.tier === CURRENT_FILTER);
   }
 
-  if (picks.length === 0) {
+  // Separar recomendados de info-only
+  // Si el pick NO tiene flag 'recommended', se considera recomendado por defecto (backwards compat)
+  const recommended = picks.filter(p => p.recommended !== false);
+  const infoOnly = picks.filter(p => p.recommended === false);
+
+  // Sin picks de ningun tipo
+  if (recommended.length === 0 && infoOnly.length === 0) {
     container.innerHTML = '<div class="empty-state">No hay picks que mostrar.</div>';
     return;
   }
 
+  // Agrupar recomendados por tier
   const grouped = {};
   for (const tier of TIER_ORDER) grouped[tier] = [];
-  for (const pick of picks) {
+  for (const pick of recommended) {
     if (grouped[pick.tier]) grouped[pick.tier].push(pick);
   }
 
   let html = '';
   for (const tier of TIER_ORDER) {
     if (grouped[tier].length === 0) continue;
-    if (CURRENT_FILTER === 'all' || CURRENT_FILTER === 'ml' || CURRENT_FILTER === 'ou') {
-      html += `<div class="tier-header">${TIER_LABELS[tier]} · ${grouped[tier].length}</div>`;
-    }
+    html += `<div class="tier-header">${TIER_LABELS[tier]} · ${grouped[tier].length}</div>`;
     for (const pick of grouped[tier]) {
-      // Dispatch por bet_type
       if (pick.bet_type === 'total') {
         html += renderOuPickCard(pick);
       } else {
@@ -191,7 +193,45 @@ function renderPicks(data) {
     }
   }
 
+  // Seccion Info Only (colapsable)
+  if (infoOnly.length > 0) {
+    const chevron = INFO_EXPANDED ? '▼' : '▶';
+    html += `
+      <div class="info-toggle" onclick="toggleInfoSection()">
+        <div class="info-toggle-text">
+          <div class="info-toggle-title">ℹ️ Info only · ${infoOnly.length}</div>
+          <div class="info-toggle-sub">Picks de baja confianza (1 sola fuente), no recomendados</div>
+        </div>
+        <div class="info-toggle-chevron">${chevron}</div>
+      </div>
+    `;
+    if (INFO_EXPANDED) {
+      html += '<div class="info-only-list">';
+      // Ordenar info-only tambien por tier para consistencia
+      const groupedInfo = {};
+      for (const tier of TIER_ORDER) groupedInfo[tier] = [];
+      for (const pick of infoOnly) {
+        if (groupedInfo[pick.tier]) groupedInfo[pick.tier].push(pick);
+      }
+      for (const tier of TIER_ORDER) {
+        for (const pick of groupedInfo[tier]) {
+          if (pick.bet_type === 'total') {
+            html += renderOuPickCard(pick);
+          } else {
+            html += renderPickCard(pick);
+          }
+        }
+      }
+      html += '</div>';
+    }
+  }
+
   container.innerHTML = html;
+}
+
+function toggleInfoSection() {
+  INFO_EXPANDED = !INFO_EXPANDED;
+  if (CURRENT_DATA) renderPicks(CURRENT_DATA);
 }
 
 function renderSourcesBadge(pick) {
@@ -238,9 +278,6 @@ function renderDratingsBadge(pick) {
 }
 
 function renderPickCard(pick) {
-  // ============================================================
-  // PICK MONEY LINE (sin cambios respecto al diseño original)
-  // ============================================================
   const pickTeamInfo = getTeamInfo(pick.pick);
   const otherTeam = pick.pick === pick.home ? pick.away : pick.home;
   const otherTeamInfo = getTeamInfo(otherTeam);
@@ -256,7 +293,6 @@ function renderPickCard(pick) {
     ? `<img class="team-logo-mini" src="${otherTeamInfo.logo}" alt="${otherTeamInfo.abbr}" loading="lazy">`
     : `<span style="font-weight:600;">${otherTeamInfo.abbr}</span>`;
 
-  // Formato edge: signo + para positivo, - automático para negativo
   const edgeStr = pick.edge >= 0 ? `+${pick.edge}` : `${pick.edge}`;
 
   return `
@@ -288,9 +324,6 @@ function renderPickCard(pick) {
 }
 
 function renderOuPickCard(pick) {
-  // ============================================================
-  // PICK OVER / UNDER (NUEVO)
-  // ============================================================
   const homeInfo = getTeamInfo(pick.home);
   const awayInfo = getTeamInfo(pick.away);
 
@@ -306,7 +339,6 @@ function renderOuPickCard(pick) {
     ? `<img class="team-logo-mini" src="${homeInfo.logo}" alt="${homeInfo.abbr}" loading="lazy">`
     : `<span class="team-abbr-mini">${homeInfo.abbr}</span>`;
 
-  // Odds: si las tiene, mostrar; si no, "-"
   const oddsRaw = pick.odds_american;
   let oddsDisplay = '—';
   if (oddsRaw !== null && oddsRaw !== undefined && oddsRaw !== '') {
@@ -316,19 +348,12 @@ function renderOuPickCard(pick) {
     }
   }
 
-  // Líneas por fuente (para mostrar detalle si hay)
-  const linesBySource = pick.lines_by_source || {};
-  const linesEntries = Object.entries(linesBySource);
-
-  // Sources badge para O/U (count/sources_total con su propia lógica)
   const sourcesBadgeHtml = renderOuSourcesBadge(pick);
 
-  // Warning de divergencia
   const divergenceHtml = pick.lines_diverge
     ? `<div class="lines-diverge-warning">⚠ Las líneas difieren entre fuentes (spread ${pick.lines_spread}). Verifica la línea actual en tu sportsbook.</div>`
     : '';
 
-  // Detalle de fuentes (DR, PW, CV) con sus respectivos picks
   const opinionsHtml = renderOpinionsRow(pick);
 
   return `
@@ -385,14 +410,14 @@ function renderOuSourcesBadge(pick) {
 }
 
 function renderOpinionsRow(pick) {
-  // Muestra los picks individuales de cada fuente: DR, PW, CV
   const opinions = pick.opinions || [];
   if (opinions.length === 0) return '';
 
   const shortName = {
     'dratings': 'DR',
     'pickswise': 'PW',
-    'covers': 'CV'
+    'covers': 'CV',
+    'parley': 'PL'
   };
 
   const items = opinions.map(op => {
@@ -452,6 +477,7 @@ document.addEventListener('click', (e) => {
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     e.target.classList.add('active');
     CURRENT_FILTER = e.target.dataset.filter;
+    INFO_EXPANDED = false;  // colapsar info al cambiar de filtro
     if (CURRENT_DATA) renderPicks(CURRENT_DATA);
   }
 });
