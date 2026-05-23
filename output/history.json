@@ -3217,7 +3217,28 @@
       "edge_real": -1.9,
       "agree_count": 2,
       "sources_unanimous": false
+    },
+    {
+      "date_played": "2026-05-23",
+      "sport": "MLB",
+      "bet_type": "moneyline",
+      "home": "Boston Red Sox",
+      "away": "Minnesota Twins",
+      "pick": "Minnesota Twins",
+      "tier": "watch",
+      "confidence": 6.9,
+      "sources_count": 5,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-05-23T13:51:55.756249-04:00",
+      "side": "away",
+      "model_prob": 52.5,
+      "edge": 4.0,
+      "estimated_odds": 106,
+      "real_odds": 106,
+      "odds_source": "real",
+      "sources_agree": false
     }
   ],
-  "last_update": "2026-05-23T12:35:21.806656-04:00"
+  "last_update": "2026-05-23T13:51:51.718869-04:00"
 }
