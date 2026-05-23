@@ -276,10 +276,11 @@ def generate_picks(games, min_model_prob=52.0):
             odds_source = 'estimated'
 
         # Tier inicial
+        # AJUSTE post-analisis ROI: subir threshold de Solido (datos mostraron WR 50% / ROI -12% con 58/1.2)
         if model_prob >= 62 and edge >= 1.8:
             tier = 'premium'
             tier_label = 'Premium'
-        elif model_prob >= 58 and edge >= 1.2:
+        elif model_prob >= 60 and edge >= 1.5:
             tier = 'solido'
             tier_label = 'Solido'
         elif model_prob >= 55 and edge >= 0.8:
@@ -359,6 +360,7 @@ def generate_picks(games, min_model_prob=52.0):
             'confidence': confidence,
             'tier': tier,
             'tier_label': tier_label,
+            'recommended': True,  # Todos los ML pasan el filtro min_model_prob, son recomendados
             'estimated_odds': implied_prob_to_american_odds(estimated_market_prob),
             'real_odds': real_odds,         # NUEVO: odds reales del FanDuel SB (None si no disponibles)
             'odds_source': odds_source,     # NUEVO: 'real' o 'estimated'
@@ -830,19 +832,24 @@ def generate_ou_picks(games):
                 tier = 'valor'
                 tier_label = 'Valor'
 
+        # AJUSTE post-analisis ROI: marcar como NO recomendado si es Watch con 1 sola fuente
+        # (analisis mostro ROI -27.9% en este segmento)
+        is_recommended = not (tier == 'watch' and sources_count == 1)
+
         picks.append({
             'bet_type': 'total',
             'sport': game['sport'],
             'game': f"{game['away']} @ {game['home']}",
             'home': game['home'],
             'away': game['away'],
-            'pick': consensus_pick.upper(),  # 'OVER' o 'UNDER'
-            'side': consensus_pick,           # 'over' o 'under'
+            'pick': consensus_pick.upper(),
+            'side': consensus_pick,
             'line': principal_line,
             'start_time': game.get('start_time', 'TBD'),
             'confidence': confidence,
             'tier': tier,
             'tier_label': tier_label,
+            'recommended': is_recommended,  # False para O/U Watch con solo 1 fuente
             'odds_american': principal_odds,
             'odds_source': odds_source,         # NUEVO: 'dratings' | 'pickswise' | None
             'edge_real': edge_real,             # NUEVO: edge estimado (None si no calculable)
