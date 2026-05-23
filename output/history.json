@@ -3028,7 +3028,28 @@
       "edge_real": null,
       "agree_count": 1,
       "sources_unanimous": false
+    },
+    {
+      "date_played": "2026-05-23",
+      "sport": "MLB",
+      "bet_type": "total",
+      "home": "Los Angeles Angels",
+      "away": "Texas Rangers",
+      "pick": "UNDER",
+      "tier": "watch",
+      "confidence": 25.0,
+      "sources_count": 1,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-05-23T07:53:26.994941-04:00",
+      "side": "under",
+      "line": 8.0,
+      "odds_american": null,
+      "odds_source": null,
+      "edge_real": null,
+      "agree_count": 1,
+      "sources_unanimous": false
     }
   ],
-  "last_update": "2026-05-23T07:48:36.662995-04:00"
+  "last_update": "2026-05-23T07:53:22.086285-04:00"
 }
