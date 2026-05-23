@@ -3175,7 +3175,49 @@
       "edge_real": null,
       "agree_count": 2,
       "sources_unanimous": false
+    },
+    {
+      "date_played": "2026-05-23",
+      "sport": "MLB",
+      "bet_type": "total",
+      "home": "San Francisco Giants",
+      "away": "Chicago White Sox",
+      "pick": "OVER",
+      "tier": "valor",
+      "confidence": 41.0,
+      "sources_count": 3,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-05-23T12:35:26.039661-04:00",
+      "side": "over",
+      "line": 8.0,
+      "odds_american": -105,
+      "odds_source": "pickswise",
+      "edge_real": 5.2,
+      "agree_count": 2,
+      "sources_unanimous": false
+    },
+    {
+      "date_played": "2026-05-23",
+      "sport": "MLB",
+      "bet_type": "total",
+      "home": "Philadelphia Phillies",
+      "away": "Cleveland Guardians",
+      "pick": "OVER",
+      "tier": "valor",
+      "confidence": 30.0,
+      "sources_count": 3,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-05-23T12:35:26.039719-04:00",
+      "side": "over",
+      "line": 7.0,
+      "odds_american": -120,
+      "odds_source": "dratings",
+      "edge_real": -1.9,
+      "agree_count": 2,
+      "sources_unanimous": false
     }
   ],
-  "last_update": "2026-05-23T10:47:21.404461-04:00"
+  "last_update": "2026-05-23T12:35:21.806656-04:00"
 }
