@@ -3133,7 +3133,49 @@
       "real_odds": -106,
       "odds_source": "real",
       "sources_agree": false
+    },
+    {
+      "date_played": "2026-05-23",
+      "sport": "MLB",
+      "bet_type": "total",
+      "home": "Atlanta Braves",
+      "away": "Washington Nationals",
+      "pick": "OVER",
+      "tier": "premium",
+      "confidence": 61.0,
+      "sources_count": 3,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-05-23T10:47:25.581337-04:00",
+      "side": "over",
+      "line": 8.5,
+      "odds_american": -110,
+      "odds_source": "pickswise",
+      "edge_real": 6.4,
+      "agree_count": 3,
+      "sources_unanimous": true
+    },
+    {
+      "date_played": "2026-05-23",
+      "sport": "MLB",
+      "bet_type": "total",
+      "home": "Toronto Blue Jays",
+      "away": "Pittsburgh Pirates",
+      "pick": "UNDER",
+      "tier": "valor",
+      "confidence": 37.0,
+      "sources_count": 2,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-05-23T10:47:25.581408-04:00",
+      "side": "under",
+      "line": 7.5,
+      "odds_american": null,
+      "odds_source": null,
+      "edge_real": null,
+      "agree_count": 2,
+      "sources_unanimous": false
     }
   ],
-  "last_update": "2026-05-23T08:42:17.254451-04:00"
+  "last_update": "2026-05-23T10:47:21.404461-04:00"
 }
