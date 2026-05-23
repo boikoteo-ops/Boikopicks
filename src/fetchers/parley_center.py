@@ -165,75 +165,86 @@ def _parse_block(block_text):
     """
     Parsea un bloque de texto plano de un juego completo de Parley Center.
 
-    Estructura esperada del texto (despues de strip de imagenes/whitespace extra):
-      "<HOME> HORA: HH:MM (-4 GMT) MONEY: -145 (1,69) ALTA/BAJA: 7.0 RECORD ... PREDICCION: 8
-       <AWAY> MONEY: 120 (2,20) RUNLINE: 1.5 RECORD ... PREDICCION: 5
-       PROBABILIDADES <HOME> <AWAY>
-       MONEY LINE 57% 1 1 43%
-       RUN LINE 54% 1 1 46%
-       ALTA/BAJA (7.0) 59% 1 1 41%
-       [descripcion...] <PICK_TEAM> MONEY LINE."
+    ANCHOR principal: el patrón "PROBABILIDADES <HOME> <AWAY>" identifica los 2 equipos
+    correctos del juego, sin importar qué equipos aparezcan antes en el texto (datos del juego anterior).
+
+    Estructura esperada despues del anchor PROBABILIDADES:
+       "PROBABILIDADES <HOME> <AWAY>
+        MONEY LINE 57% 1 1 43%
+        ...
+        ALTA/BAJA (7.0) 59% 1 1 41%
+        [descripcion...] <PICK_TEAM> MONEY LINE."
+
+    Datos de odds (MONEY:) estan ANTES de PROBABILIDADES; usamos posicionamiento.
     """
     text_up = block_text.upper()
 
-    # Detectar los 2 equipos: aparecen en orden HOME, AWAY al inicio
-    # Estrategia: encontrar los primeros 2 nombres de equipos MLB en el texto
-    sorted_teams = sorted(MLB_TEAMS_RAW, key=len, reverse=True)
-    teams_found_with_pos = []  # (team, position)
-    seen_teams = set()
-
-    for team in sorted_teams:
-        # findall all occurrences positions
-        start = 0
-        while True:
-            idx = text_up.find(team, start)
-            if idx < 0:
-                break
-            # Verificar boundaries: no debe ser parte de otro nombre mas largo
-            # (esto ya lo evitamos al buscar longest first y trackeando seen)
-            # Verificar que no este dentro de un team ya capturado
-            already_captured = any(
-                seen_idx <= idx < seen_idx + len(seen_team)
-                or idx <= seen_idx < idx + len(team)
-                for seen_team, seen_idx in seen_teams
-            )
-            if not already_captured:
-                teams_found_with_pos.append((team, idx))
-                seen_teams.add((team, idx))
-            start = idx + len(team)
-
-    if len(teams_found_with_pos) < 2:
+    # === ANCHOR: encontrar PROBABILIDADES y los 2 equipos que le siguen ===
+    prob_idx = text_up.find("PROBABILIDADES")
+    if prob_idx < 0:
         return None
 
-    # Ordenar por posicion en el texto (primero el que aparece antes)
-    teams_found_with_pos.sort(key=lambda x: x[1])
+    # Tomar los siguientes 200 chars despues de PROBABILIDADES — alli estan home y away
+    after_prob = text_up[prob_idx + len("PROBABILIDADES"):prob_idx + len("PROBABILIDADES") + 200]
 
-    # Los primeros 2 son home y away (en ese orden segun aparecen)
-    home_raw = teams_found_with_pos[0][0]
-    away_raw = teams_found_with_pos[1][0]
+    # Buscar los 2 nombres de equipo (longest first para evitar conflictos)
+    sorted_teams = sorted(MLB_TEAMS_RAW, key=len, reverse=True)
+    teams_after_prob = []  # [(team_raw, position_in_after_prob)]
+    seen_ranges = []  # [(start, end)] ya capturados
+
+    for team in sorted_teams:
+        # Encontrar TODAS las ocurrencias en after_prob
+        start = 0
+        while True:
+            idx = after_prob.find(team, start)
+            if idx < 0:
+                break
+            # Verificar que no este dentro de un rango ya capturado
+            overlaps = any(s <= idx < e or idx <= s < idx + len(team)
+                           for s, e in seen_ranges)
+            if not overlaps:
+                teams_after_prob.append((team, idx))
+                seen_ranges.append((idx, idx + len(team)))
+            start = idx + len(team)
+
+    if len(teams_after_prob) < 2:
+        return None
+
+    # Tomar los 2 que aparecen mas temprano en after_prob
+    teams_after_prob.sort(key=lambda x: x[1])
+    home_raw = teams_after_prob[0][0]
+    away_raw = teams_after_prob[1][0]
     home_team = _normalize_team(home_raw)
     away_team = _normalize_team(away_raw)
 
-    # === Extraer MONEY de cada equipo ===
-    # El primer MONEY tras el home, el segundo MONEY tras el away
-    money_matches = list(re.finditer(r"MONEY:\s*(-?\+?\d+)", text_up))
+    # === Extraer MONEY de cada equipo (estan ANTES de PROBABILIDADES) ===
+    # Tomar todos los MONEY: que aparezcan ANTES de prob_idx en orden:
+    # el primero es home, el segundo es away
+    text_before_prob = text_up[:prob_idx]
+    money_matches = list(re.finditer(r"MONEY:\s*(-?\+?\d+)", text_before_prob))
     ml_home_odds = ml_away_odds = None
     if len(money_matches) >= 2:
         try:
-            ml_home_odds = int(money_matches[0].group(1).replace("+", ""))
-            ml_away_odds = int(money_matches[1].group(1).replace("+", ""))
+            # Los 2 ULTIMOS MONEY: antes de PROBABILIDADES son los de este juego
+            ml_home_odds = int(money_matches[-2].group(1).replace("+", ""))
+            ml_away_odds = int(money_matches[-1].group(1).replace("+", ""))
         except ValueError:
             pass
 
-    # === Extraer ALTA/BAJA line ===
-    ou_line_m = re.search(r"ALTA/BAJA:\s*(\d+(?:\.\d+)?)", text_up)
-    ou_line = float(ou_line_m.group(1)) if ou_line_m else None
+    # === Extraer ALTA/BAJA line (ultima ALTA/BAJA: antes de PROBABILIDADES) ===
+    ou_line = None
+    ou_line_matches = list(re.finditer(r"ALTA/BAJA:\s*(\d+(?:\.\d+)?)", text_before_prob))
+    if ou_line_matches:
+        try:
+            ou_line = float(ou_line_matches[-1].group(1))
+        except ValueError:
+            pass
 
-    # === Extraer % MONEY LINE (los dos primeros %) ===
-    # El bloque MONEY LINE tiene "MONEY LINE 57% 1 1 43%"
+    # === Extraer % MONEY LINE (los dos primeros % despues de PROBABILIDADES) ===
+    text_after_prob_full = text_up[prob_idx:]
     ml_pct_m = re.search(
         r"MONEY\s+LINE\s+(\d+)\s*%[^%]*?(\d+)\s*%",
-        text_up, re.DOTALL
+        text_after_prob_full, re.DOTALL
     )
     ml_home_pct = ml_away_pct = None
     if ml_pct_m:
@@ -244,10 +255,9 @@ def _parse_block(block_text):
             pass
 
     # === Extraer % ALTA/BAJA ===
-    # Bloque "ALTA/BAJA (7.0) 59% 1 1 41%"
     ou_pct_m = re.search(
         r"ALTA/BAJA\s*\(\d+(?:\.\d+)?\)\s+(\d+)\s*%[^%]*?(\d+)\s*%",
-        text_up, re.DOTALL
+        text_after_prob_full, re.DOTALL
     )
     ou_over_pct = ou_under_pct = None
     if ou_pct_m:
@@ -257,7 +267,7 @@ def _parse_block(block_text):
         except ValueError:
             pass
 
-    # === Pick textual ===
+    # === Pick textual (al final del bloque) ===
     text_pick = _extract_text_pick_type(text_up)
     text_pick_team = _normalize_team(text_pick["team_raw"]) if text_pick["team_raw"] else None
 
@@ -290,58 +300,67 @@ def _get_games_cached():
     games = []
     if html:
         soup = BeautifulSoup(html, "html.parser")
-        # Buscar TODOS los elementos (cualquier tag) que contengan "PROBABILIDADES"
-        # como string directo. Filtrar para quedarnos con el mas pequeno (mas atomico)
-        # que contiene todo el bloque de un juego.
+        # Estrategia nueva: tomar TODO el texto de la pagina y dividirlo por "PROBABILIDADES"
+        # Cada chunk despues del split contiene un juego completo:
+        #   "<HOME> <AWAY> MONEY LINE 57% 43% RUN LINE ... ALTA/BAJA ... [texto] PICK."
+        # Pero NO tiene el HOME y AWAY con MONEY: porque eso esta ANTES de "PROBABILIDADES"
+        # Asi que cada chunk N contiene:
+        #   - El final del juego N (el bloque PROBABILIDADES + descripcion + pick textual)
+        #   - El inicio del juego N+1 (los nombres de equipos con MONEY:, RECORD, etc.)
+        #
+        # Por simplicidad: dividir tambien por marcadores que separen bien.
+        # En la practica funciona mejor partir por "PROBABILIDADES" y reagrupar.
 
-        # Estrategia: encontrar elementos con texto que contenga TODOS los marcadores
-        # de un juego completo: PROBABILIDADES, MONEY LINE, ALTA/BAJA
-        candidate_blocks = []
-        for el in soup.find_all(True):  # todos los tags
-            text = el.get_text(" ", strip=True)
-            text_up = text.upper()
-            # Debe contener los 3 marcadores
-            if ("PROBABILIDADES" in text_up
-                    and "MONEY LINE" in text_up
-                    and "ALTA/BAJA" in text_up):
-                # Y debe tener un MONEY: explicito (es un bloque de juego, no el contenedor entero)
-                if "MONEY:" in text_up:
-                    candidate_blocks.append((el, len(text)))
+        full_text = soup.get_text(" ", strip=False)
+        # Normalizar whitespace
+        full_text = re.sub(r"\s+", " ", full_text)
 
-        # Ordenar por tamano de texto: bloques mas pequenos primero (mas atomicos)
-        candidate_blocks.sort(key=lambda x: x[1])
+        # Dividir por "PROBABILIDADES" — cada chunk[i] termina antes de su PROBABILIDADES,
+        # y chunk[i+1] empieza despues.
+        # Estructura real:
+        #   ANTES_DE_PROB1: [home1 datos] [away1 datos]
+        #   PROB1: [pcts de juego 1] [texto descripcion juego 1, termina con pick]
+        #          [home2 datos] [away2 datos]
+        #   PROB2: [pcts de juego 2] [texto descripcion 2]
+        #          [home3 datos] [away3 datos]
+        #   ...
+        #
+        # Asi que un BLOQUE DE JUEGO N completo es:
+        #   chunks[N-1].split() final (donde estan home/away con MONEY:)
+        #   + "PROBABILIDADES" + chunks[N] hasta donde aparece el siguiente home/away
+        #
+        # Solucion mas simple: para cada PROBABILIDADES, tomar una ventana de texto
+        # que abarque desde ~1500 chars antes hasta el siguiente PROBABILIDADES (o fin).
 
-        # Quedarnos solo con los bloques minimos (no contenedores grandes que abarcan multiples juegos)
-        # Un bloque de un juego tipico tiene 500-1500 caracteres
-        selected = []
-        used_text_hashes = set()
-        for el, text_len in candidate_blocks:
-            text = el.get_text(" ", strip=True)
-            # Skip duplicados (mismo texto exacto)
-            text_hash = hash(text[:300])
-            if text_hash in used_text_hashes:
-                continue
-            # Skip bloques gigantes que abarcan multiples juegos (>3000 chars normalmente significa que abarca >=2)
-            if text_len > 4000:
-                continue
-            # Verificar que NO contiene multiples bloques PROBABILIDADES
-            num_prob = text.upper().count("PROBABILIDADES")
-            if num_prob > 1:
-                continue
-            used_text_hashes.add(text_hash)
-            selected.append(el)
+        prob_positions = []
+        for m in re.finditer(r"\bPROBABILIDADES\b", full_text, re.I):
+            prob_positions.append(m.start())
 
-        print(f"   Parley Center: {len(selected)} bloques de juego seleccionados (de {len(candidate_blocks)} candidatos)")
+        print(f"   Parley Center: {len(prob_positions)} marcadores PROBABILIDADES en texto plano")
 
-        for el in selected:
-            text = el.get_text(" ", strip=True)
+        for i, prob_start in enumerate(prob_positions):
+            # Inicio del bloque: 1500 chars antes (donde estan los nombres de equipos con MONEY:)
+            block_start = max(0, prob_start - 1500)
+            # Si hay un PROBABILIDADES anterior, no retroceder mas alla de el
+            if i > 0:
+                block_start = max(block_start, prob_positions[i - 1] + len("PROBABILIDADES"))
+            # Fin del bloque: hasta el siguiente PROBABILIDADES o fin del texto
+            if i + 1 < len(prob_positions):
+                block_end = prob_positions[i + 1]
+            else:
+                block_end = len(full_text)
+
+            block_text = full_text[block_start:block_end]
+
             try:
-                game = _parse_block(text)
+                game = _parse_block(block_text)
                 if game and game.get("home") and game.get("away"):
                     games.append(game)
             except Exception as e:
                 print(f"   Parley Center parse error: {e}")
                 continue
+
+        print(f"   Parley Center: {len(games)} juegos parseados exitosamente")
 
     _CACHED_GAMES = games
     _CACHED = True
