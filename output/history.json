@@ -3049,7 +3049,28 @@
       "edge_real": null,
       "agree_count": 1,
       "sources_unanimous": false
+    },
+    {
+      "date_played": "2026-05-23",
+      "sport": "MLB",
+      "bet_type": "total",
+      "home": "Milwaukee Brewers",
+      "away": "Los Angeles Dodgers",
+      "pick": "OVER",
+      "tier": "watch",
+      "confidence": 25.0,
+      "sources_count": 1,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-05-23T07:59:27.655954-04:00",
+      "side": "over",
+      "line": 9.0,
+      "odds_american": -105,
+      "odds_source": "dratings",
+      "edge_real": null,
+      "agree_count": 1,
+      "sources_unanimous": false
     }
   ],
-  "last_update": "2026-05-23T07:53:22.086285-04:00"
+  "last_update": "2026-05-23T07:59:24.374456-04:00"
 }
