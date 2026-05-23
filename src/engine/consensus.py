@@ -42,15 +42,18 @@ def _teams_match(name1, name2):
 
 
 def merge_game_data(schedule_games, numberfire_predictions, covers_predictions,
-                     pickswise_predictions=None, dratings_predictions=None):
+                     pickswise_predictions=None, dratings_predictions=None,
+                     parley_predictions=None):
     """
-    Combina juegos del schedule con predicciones de 4 fuentes.
-    pickswise y dratings son opcionales.
+    Combina juegos del schedule con predicciones de 5 fuentes.
+    pickswise, dratings y parley son opcionales.
     """
     if pickswise_predictions is None:
         pickswise_predictions = []
     if dratings_predictions is None:
         dratings_predictions = []
+    if parley_predictions is None:
+        parley_predictions = []
 
     merged = []
 
@@ -124,6 +127,27 @@ def merge_game_data(schedule_games, numberfire_predictions, covers_predictions,
                 enriched['has_dratings'] = True
                 break
 
+        # Parley Center (NUEVA 5ta fuente)
+        enriched['home_prob_parley'] = None
+        enriched['away_prob_parley'] = None
+        enriched['home_odds_parley'] = None
+        enriched['away_odds_parley'] = None
+        enriched['parley_text_pick_team'] = None
+        enriched['parley_text_pick_type'] = None
+        enriched['has_parley'] = False
+
+        for pred in parley_predictions:
+            if (_teams_match(game['home'], pred['home']) and
+                _teams_match(game['away'], pred['away'])):
+                enriched['home_prob_parley'] = pred['home_prob_parley']
+                enriched['away_prob_parley'] = pred['away_prob_parley']
+                enriched['home_odds_parley'] = pred.get('home_odds_parley')
+                enriched['away_odds_parley'] = pred.get('away_odds_parley')
+                enriched['parley_text_pick_team'] = pred.get('text_pick_team')
+                enriched['parley_text_pick_type'] = pred.get('text_pick_type')
+                enriched['has_parley'] = True
+                break
+
         # Promedio de las fuentes disponibles
         sources_count = 0
         home_prob_sum = 0
@@ -149,6 +173,11 @@ def merge_game_data(schedule_games, numberfire_predictions, covers_predictions,
             away_prob_sum += enriched['away_prob_dratings']
             sources_count += 1
 
+        if enriched['has_parley']:
+            home_prob_sum += enriched['home_prob_parley']
+            away_prob_sum += enriched['away_prob_parley']
+            sources_count += 1
+
         if sources_count > 0:
             enriched['home_prob_model'] = round(home_prob_sum / sources_count, 1)
             enriched['away_prob_model'] = round(away_prob_sum / sources_count, 1)
@@ -159,7 +188,7 @@ def merge_game_data(schedule_games, numberfire_predictions, covers_predictions,
             enriched['has_model_prediction'] = False
 
         enriched['sources_count'] = sources_count
-        enriched['sources_total'] = 4  # max posible ahora
+        enriched['sources_total'] = 5  # max posible ahora (numberFire + Covers + Pickswise + DRatings + Parley)
 
         # Acuerdo entre fuentes (cuantas pickean al mismo equipo)
         if sources_count >= 2:
@@ -182,6 +211,11 @@ def merge_game_data(schedule_games, numberfire_predictions, covers_predictions,
                     picks_away += 1
             if enriched['has_dratings']:
                 if enriched['home_prob_dratings'] > enriched['away_prob_dratings']:
+                    picks_home += 1
+                else:
+                    picks_away += 1
+            if enriched['has_parley']:
+                if enriched['home_prob_parley'] > enriched['away_prob_parley']:
                     picks_home += 1
                 else:
                     picks_away += 1
@@ -260,8 +294,16 @@ def generate_picks(games, min_model_prob=52.0):
         sources_agree = game.get('sources_agree')
         sources_unanimous = game.get('sources_unanimous', False)
 
+        # Bonus tier si 5/5 coinciden (todas las fuentes acuerdan)
+        if sources_count == 5 and sources_agree is True:
+            if tier == 'solido':
+                tier = 'premium'
+                tier_label = 'Premium'
+            elif tier == 'valor':
+                tier = 'solido'
+                tier_label = 'Solido'
         # Bonus tier si 4/4 coinciden
-        if sources_count == 4 and sources_agree is True:
+        elif sources_count == 4 and sources_agree is True:
             if tier == 'solido':
                 tier = 'premium'
                 tier_label = 'Premium'
@@ -290,7 +332,9 @@ def generate_picks(games, min_model_prob=52.0):
 
         # Confianza
         confidence = (model_prob - 50) * 2 + edge * 3
-        if sources_agree is True and sources_count == 4:
+        if sources_agree is True and sources_count == 5:
+            confidence += 18  # bonus maximo por 5/5
+        elif sources_agree is True and sources_count == 4:
             confidence += 15  # bonus extra por 4/4
         elif sources_agree is True and sources_count == 3:
             confidence += 10
@@ -331,6 +375,9 @@ def generate_picks(games, min_model_prob=52.0):
             'has_pickswise': game.get('has_pickswise', False),
             'dratings_prob': game.get('home_prob_dratings') if side == 'home' else game.get('away_prob_dratings'),
             'has_dratings': game.get('has_dratings', False),
+            'parley_prob': game.get('home_prob_parley') if side == 'home' else game.get('away_prob_parley'),
+            'parley_odds': game.get('home_odds_parley') if side == 'home' else game.get('away_odds_parley'),
+            'has_parley': game.get('has_parley', False),
             # Datos crudos para Fase 6 futura
             'dratings_total_runs': game.get('dratings_total_runs'),
             'dratings_home_runs': game.get('dratings_home_runs'),
@@ -393,14 +440,15 @@ def _line_to_key(line):
 
 
 def merge_ou_data(schedule_games, dratings_predictions=None,
-                  pickswise_totals=None, covers_totals=None):
+                  pickswise_totals=None, covers_totals=None,
+                  parley_totals=None):
     """
-    Cruza datos O/U de las 3 fuentes (DRatings, Pickswise Totals, Covers Totals)
+    Cruza datos O/U de 4 fuentes (DRatings, Pickswise, Covers, Parley Center)
     contra el schedule. Devuelve lista de juegos enriquecidos con info O/U.
 
     NOTA: DRatings reusa sus dicts existentes (que ya tienen ou_pick, ou_line,
-    etc. desde Fase 1). Pickswise y Covers vienen de sus nuevas funciones
-    get_pickswise_totals() y get_covers_totals().
+    etc. desde Fase 1). Pickswise, Covers y Parley vienen de sus funciones
+    get_*_totals().
     """
     if dratings_predictions is None:
         dratings_predictions = []
@@ -408,6 +456,8 @@ def merge_ou_data(schedule_games, dratings_predictions=None,
         pickswise_totals = []
     if covers_totals is None:
         covers_totals = []
+    if parley_totals is None:
+        parley_totals = []
 
     merged = []
 
@@ -438,6 +488,12 @@ def merge_ou_data(schedule_games, dratings_predictions=None,
             'covers_ou_line': None,
             'covers_ou_pct_over': None,
             'covers_ou_pct_under': None,
+            # Parley Center O/U (nueva 4ta fuente)
+            'has_parley_ou': False,
+            'parley_ou_pick': None,
+            'parley_ou_line': None,
+            'parley_ou_pct_over': None,
+            'parley_ou_pct_under': None,
         }
 
         # === DRatings ===
@@ -478,6 +534,17 @@ def merge_ou_data(schedule_games, dratings_predictions=None,
                 enriched['covers_ou_pct_under'] = pred.get('ou_pct_under')
                 break
 
+        # === Parley Center ===
+        for pred in parley_totals:
+            if (_teams_match(game['home'], pred['home']) and
+                _teams_match(game['away'], pred['away'])):
+                enriched['has_parley_ou'] = True
+                enriched['parley_ou_pick'] = pred.get('ou_pick')
+                enriched['parley_ou_line'] = pred.get('ou_line')
+                enriched['parley_ou_pct_over'] = pred.get('ou_pct_over')
+                enriched['parley_ou_pct_under'] = pred.get('ou_pct_under')
+                break
+
         # === Calcular consenso (Decisión 1: adaptativo — solo cuentan fuentes que opinan) ===
         opinions = []  # lista de ('over'|'under', source_name)
 
@@ -491,8 +558,11 @@ def merge_ou_data(schedule_games, dratings_predictions=None,
         if enriched['has_covers_ou'] and enriched['covers_ou_pick'] in ('over', 'under'):
             opinions.append((enriched['covers_ou_pick'], 'covers'))
 
+        if enriched['has_parley_ou'] and enriched['parley_ou_pick'] in ('over', 'under'):
+            opinions.append((enriched['parley_ou_pick'], 'parley'))
+
         enriched['ou_sources_count'] = len(opinions)
-        enriched['ou_sources_total'] = 3
+        enriched['ou_sources_total'] = 4  # ahora son 4 fuentes O/U max
         enriched['ou_opinions'] = opinions
 
         if len(opinions) == 0:
@@ -515,6 +585,7 @@ def merge_ou_data(schedule_games, dratings_predictions=None,
                 enriched['ou_agree_count'] = 1  # nadie gana
             enriched['ou_sources_agree'] = (enriched['ou_agree_count'] == len(opinions)
                                             and len(opinions) >= 2)
+            # Unanimo: las 3 o 4 fuentes acuerdan
             enriched['ou_sources_unanimous'] = (enriched['ou_sources_agree']
                                                 and len(opinions) >= 3)
 
@@ -526,12 +597,14 @@ def merge_ou_data(schedule_games, dratings_predictions=None,
             lines_available.append(('pickswise', enriched['pickswise_ou_line']))
         if enriched['covers_ou_line'] is not None:
             lines_available.append(('covers', enriched['covers_ou_line']))
+        if enriched['parley_ou_line'] is not None:
+            lines_available.append(('parley', enriched['parley_ou_line']))
 
         enriched['ou_lines_by_source'] = dict(lines_available)
 
-        # Linea "principal" para mostrar: preferir Covers > DRatings > Pickswise
+        # Linea "principal" para mostrar: preferir Covers > DRatings > Pickswise > Parley
         principal_line = None
-        for src in ('covers', 'dratings', 'pickswise'):
+        for src in ('covers', 'dratings', 'pickswise', 'parley'):
             if src in enriched['ou_lines_by_source']:
                 principal_line = enriched['ou_lines_by_source'][src]
                 break
@@ -586,9 +659,15 @@ def generate_ou_picks(games):
         elif sources_count == 2 and agree_count == 2:
             confidence += 12  # 2/2 acuerdo
         elif sources_count == 3 and agree_count == 3:
-            confidence += 25  # 3/3 unanimo
+            confidence += 25  # 3/3 unanime
         elif sources_count == 3 and agree_count == 2:
             confidence += 5   # 2/3 (un disenso)
+        elif sources_count == 4 and agree_count == 4:
+            confidence += 32  # 4/4 perfecto - bonus mas alto
+        elif sources_count == 4 and agree_count == 3:
+            confidence += 15  # 3/4 mayoria fuerte
+        elif sources_count == 4 and agree_count == 2:
+            confidence += 0   # 2/4 dividido, sin bonus
 
         # Bonus por magnitud de DRatings (si la fuente opina)
         dratings_diff = game.get('dratings_ou_diff')
@@ -606,6 +685,14 @@ def generate_ou_picks(games):
         if consensus_pick == 'over' and covers_pct_over and covers_pct_over >= 65:
             confidence += 5
         elif consensus_pick == 'under' and covers_pct_under and covers_pct_under >= 65:
+            confidence += 5
+
+        # Bonus por convicción de Parley Center: si >65% del lado pickeado
+        parley_pct_over = game.get('parley_ou_pct_over')
+        parley_pct_under = game.get('parley_ou_pct_under')
+        if consensus_pick == 'over' and parley_pct_over and parley_pct_over >= 65:
+            confidence += 5
+        elif consensus_pick == 'under' and parley_pct_under and parley_pct_under >= 65:
             confidence += 5
 
         # Penalizacion: lineas divergen significativamente entre fuentes
@@ -669,8 +756,17 @@ def generate_ou_picks(games):
             cv_strength = max(0, cv_pct - 50)  # 50% = 0, 75% = 25
             estimated_prob += min(cv_strength / 5.0, 5.0)  # cap 5pts (osea 75% publico)
 
-        # Cap final: 50%-70% (somos conservadores; nadie sabe el futuro)
-        estimated_prob = min(70.0, max(50.0, estimated_prob))
+        # Parley Center: agregar por distancia desde 50%
+        if game.get('parley_ou_pick') == consensus_pick:
+            if consensus_pick == 'over':
+                pl_pct = game.get('parley_ou_pct_over') or 50
+            else:
+                pl_pct = game.get('parley_ou_pct_under') or 50
+            pl_strength = max(0, pl_pct - 50)
+            estimated_prob += min(pl_strength / 5.0, 5.0)
+
+        # Cap final: 50%-75% (con 4 fuentes ahora podemos llegar un poco mas alto)
+        estimated_prob = min(75.0, max(50.0, estimated_prob))
 
         # === Edge real: solo si tenemos odds reales y >= 2 fuentes acuerdan ===
         edge_real = None
@@ -699,9 +795,19 @@ def generate_ou_picks(games):
         # Plus: si edge_real es muy fuerte (>=8), permitimos promover de tier
         edge_bonus_premium = edge_real is not None and edge_real >= 8
 
-        if sources_count == 3 and agree_count == 3 and confidence >= 50:
+        if sources_count == 4 and agree_count == 4 and confidence >= 55:
             tier = 'premium'
             tier_label = 'Premium'
+        elif sources_count == 3 and agree_count == 3 and confidence >= 50:
+            tier = 'premium'
+            tier_label = 'Premium'
+        elif sources_count == 4 and agree_count == 3 and confidence >= 45:
+            # 3/4 mayoria fuerte
+            tier = 'solido'
+            tier_label = 'Solido'
+            if edge_bonus_premium and confidence >= 50:
+                tier = 'premium'
+                tier_label = 'Premium'
         elif sources_count >= 2 and agree_count == sources_count and confidence >= 40:
             tier = 'solido'
             tier_label = 'Solido'
@@ -742,7 +848,7 @@ def generate_ou_picks(games):
             'edge_real': edge_real,             # NUEVO: edge estimado (None si no calculable)
             # Consenso
             'sources_count': sources_count,
-            'sources_total': 3,
+            'sources_total': 4,  # ahora 4 fuentes O/U max
             'sources_agree': sources_agree,
             'sources_unanimous': sources_unanimous,
             'agree_count': agree_count,
@@ -759,6 +865,10 @@ def generate_ou_picks(games):
             'covers_line': game.get('covers_ou_line'),
             'covers_pct_over': game.get('covers_ou_pct_over'),
             'covers_pct_under': game.get('covers_ou_pct_under'),
+            'parley_pick': game.get('parley_ou_pick'),
+            'parley_line': game.get('parley_ou_line'),
+            'parley_pct_over': game.get('parley_ou_pct_over'),
+            'parley_pct_under': game.get('parley_ou_pct_under'),
             # Lineas y advertencia
             'lines_by_source': lines_by_source,
             'lines_spread': game.get('ou_lines_spread', 0),
