@@ -4372,7 +4372,28 @@
       "real_odds": -132,
       "odds_source": "real",
       "sources_agree": false
+    },
+    {
+      "date_played": "2026-05-25",
+      "sport": "MLB",
+      "bet_type": "moneyline",
+      "home": "San Francisco Giants",
+      "away": "Arizona Diamondbacks",
+      "pick": "San Francisco Giants",
+      "tier": "watch",
+      "confidence": 0,
+      "sources_count": 5,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-05-25T12:06:55.349222-04:00",
+      "side": "home",
+      "model_prob": 52.3,
+      "edge": -6.4,
+      "estimated_odds": -142,
+      "real_odds": -142,
+      "odds_source": "real",
+      "sources_agree": false
     }
   ],
-  "last_update": "2026-05-25T08:30:22.531126-04:00"
+  "last_update": "2026-05-25T12:06:50.343749-04:00"
 }
