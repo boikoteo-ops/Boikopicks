@@ -1,4 +1,4 @@
- """
+"""
 Fetcher de Pickswise - 3ra fuente (experts humanos).
 Extrae Money Line picks del JSON embebido en __NEXT_DATA__.
 """
