@@ -5044,7 +5044,28 @@
       "edge_real": null,
       "agree_count": 2,
       "sources_unanimous": false
+    },
+    {
+      "date_played": "2026-05-26",
+      "sport": "MLB",
+      "bet_type": "total",
+      "home": "Pittsburgh Pirates",
+      "away": "Chicago Cubs",
+      "pick": "OVER",
+      "tier": "valor",
+      "confidence": 30.0,
+      "sources_count": 3,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-05-26T11:00:39.023220-04:00",
+      "side": "over",
+      "line": 8.5,
+      "odds_american": -110,
+      "odds_source": "dratings",
+      "edge_real": 0.4,
+      "agree_count": 2,
+      "sources_unanimous": false
     }
   ],
-  "last_update": "2026-05-26T09:54:24.581218-04:00"
+  "last_update": "2026-05-26T11:00:23.758688-04:00"
 }
