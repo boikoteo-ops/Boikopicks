@@ -6346,7 +6346,28 @@
       "real_odds": null,
       "odds_source": "estimated",
       "sources_agree": false
+    },
+    {
+      "date_played": "2026-05-28",
+      "sport": "MLB",
+      "bet_type": "total",
+      "home": "Detroit Tigers",
+      "away": "Los Angeles Angels",
+      "pick": "OVER",
+      "tier": "watch",
+      "confidence": 46.0,
+      "sources_count": 4,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-05-28T08:00:21.062828-04:00",
+      "side": "over",
+      "line": 9.0,
+      "odds_american": -105,
+      "odds_source": "dratings",
+      "edge_real": 3.9,
+      "agree_count": 3,
+      "sources_unanimous": false
     }
   ],
-  "last_update": "2026-05-28T05:15:27.704395-04:00"
+  "last_update": "2026-05-28T08:00:05.626463-04:00"
 }
