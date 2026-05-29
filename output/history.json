@@ -6871,7 +6871,28 @@
       "real_odds": null,
       "odds_source": "estimated",
       "sources_agree": false
+    },
+    {
+      "date_played": "2026-05-29",
+      "sport": "MLB",
+      "bet_type": "total",
+      "home": "Washington Nationals",
+      "away": "San Diego Padres",
+      "pick": "OVER",
+      "tier": "watch",
+      "confidence": 50.0,
+      "sources_count": 3,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-05-29T15:00:33.505235-04:00",
+      "side": "over",
+      "line": 9.5,
+      "odds_american": -120,
+      "odds_source": "dratings",
+      "edge_real": 0.7,
+      "agree_count": 3,
+      "sources_unanimous": true
     }
   ],
-  "last_update": "2026-05-29T12:00:30.645867-04:00"
+  "last_update": "2026-05-29T15:00:08.026348-04:00"
 }
