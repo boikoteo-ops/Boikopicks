@@ -7816,7 +7816,28 @@
       "real_odds": null,
       "odds_source": "estimated",
       "sources_agree": false
+    },
+    {
+      "date_played": "2026-05-31",
+      "sport": "MLB",
+      "bet_type": "moneyline",
+      "home": "Cleveland Guardians",
+      "away": "Boston Red Sox",
+      "pick": "Boston Red Sox",
+      "tier": "watch",
+      "confidence": 0,
+      "sources_count": 4,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-05-31T06:35:07.490042-04:00",
+      "side": "away",
+      "model_prob": 52.1,
+      "edge": 0.3,
+      "estimated_odds": -107,
+      "real_odds": null,
+      "odds_source": "estimated",
+      "sources_agree": false
     }
   ],
-  "last_update": "2026-05-31T06:30:02.035494-04:00"
+  "last_update": "2026-05-31T06:34:55.707893-04:00"
 }
