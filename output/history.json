@@ -10336,7 +10336,28 @@
       "real_odds": null,
       "odds_source": "estimated",
       "sources_agree": false
+    },
+    {
+      "date_played": "2026-06-14",
+      "sport": "MLB",
+      "bet_type": "total",
+      "home": "Boston Red Sox",
+      "away": "Texas Rangers",
+      "pick": "UNDER",
+      "tier": "watch",
+      "confidence": 25.0,
+      "sources_count": 1,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-06-14T11:09:02.653592-04:00",
+      "side": "under",
+      "line": 9.0,
+      "odds_american": -105,
+      "odds_source": "dratings",
+      "edge_real": null,
+      "agree_count": 1,
+      "sources_unanimous": false
     }
   ],
-  "last_update": "2026-06-14T11:04:37.013858-04:00"
+  "last_update": "2026-06-14T11:08:50.196248-04:00"
 }
