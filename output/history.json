@@ -11932,7 +11932,28 @@
       "real_odds": null,
       "odds_source": "estimated",
       "sources_agree": true
+    },
+    {
+      "date_played": "2026-06-29",
+      "sport": "MLB",
+      "bet_type": "moneyline",
+      "home": "Baltimore Orioles",
+      "away": "Chicago White Sox",
+      "pick": "Chicago White Sox",
+      "tier": "watch",
+      "confidence": 0,
+      "sources_count": 2,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-06-29T18:00:29.767672-04:00",
+      "side": "away",
+      "model_prob": 52.0,
+      "edge": 0.3,
+      "estimated_odds": -107,
+      "real_odds": null,
+      "odds_source": "estimated",
+      "sources_agree": false
     }
   ],
-  "last_update": "2026-06-29T16:31:54.623778-04:00"
+  "last_update": "2026-06-29T18:00:18.926714-04:00"
 }
