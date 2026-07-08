@@ -13045,7 +13045,49 @@
       "real_odds": null,
       "odds_source": "estimated",
       "sources_agree": null
+    },
+    {
+      "date_played": "2026-07-08",
+      "sport": "MLB",
+      "bet_type": "total",
+      "home": "Texas Rangers",
+      "away": "Los Angeles Angels",
+      "pick": "OVER",
+      "tier": "watch",
+      "confidence": 30.0,
+      "sources_count": 1,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-07-08T18:00:27.600480-04:00",
+      "side": "over",
+      "line": 8.5,
+      "odds_american": null,
+      "odds_source": null,
+      "edge_real": null,
+      "agree_count": 1,
+      "sources_unanimous": false
+    },
+    {
+      "date_played": "2026-07-08",
+      "sport": "MLB",
+      "bet_type": "total",
+      "home": "Minnesota Twins",
+      "away": "Cleveland Guardians",
+      "pick": "OVER",
+      "tier": "watch",
+      "confidence": 25.0,
+      "sources_count": 1,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-07-08T18:00:27.600559-04:00",
+      "side": "over",
+      "line": 8.0,
+      "odds_american": null,
+      "odds_source": null,
+      "edge_real": null,
+      "agree_count": 1,
+      "sources_unanimous": false
     }
   ],
-  "last_update": "2026-07-08T16:31:06.274569-04:00"
+  "last_update": "2026-07-08T18:00:16.697018-04:00"
 }
