@@ -1,13 +1,15 @@
 {
-  "generated_at": "2026-07-15T22:35:16.423398-04:00",
-  "date_display": "15/07/2026",
+  "generated_at": "2026-07-16T16:29:30.352734-04:00",
+  "date_display": "16/07/2026",
   "summary": {
-    "total_games_mlb": 0,
+    "total_games_mlb": 1,
     "total_games_nba": 0,
-    "total_picks": 0,
-    "total_picks_ml": 0,
-    "total_picks_ou": 0,
-    "sports_active": [],
+    "total_picks": 2,
+    "total_picks_ml": 1,
+    "total_picks_ou": 1,
+    "sports_active": [
+      "MLB"
+    ],
     "sources_used": [
       "numberFire",
       "Covers Consensus",
@@ -22,15 +24,197 @@
       "Parley Center"
     ]
   },
-  "games": [],
-  "games_ou": [],
-  "picks": [],
+  "games": [
+    {
+      "id": 823440,
+      "sport": "MLB",
+      "home": "Philadelphia Phillies",
+      "away": "New York Mets",
+      "start_time": "06:10 PM",
+      "start_time_iso": "2026-07-16T18:10:00-04:00",
+      "home_pitcher": "Aaron Nola",
+      "away_pitcher": "Christian Scott",
+      "venue": "Citizens Bank Park",
+      "home_prob_numberfire": null,
+      "away_prob_numberfire": null,
+      "has_numberfire": false,
+      "home_odds_real": null,
+      "away_odds_real": null,
+      "home_pct_covers": 62.0,
+      "away_pct_covers": 38.0,
+      "has_covers": true,
+      "home_prob_pickswise": null,
+      "away_prob_pickswise": null,
+      "pickswise_confidence": null,
+      "pickswise_pick_team": null,
+      "has_pickswise": false,
+      "home_prob_dratings": 52.5,
+      "away_prob_dratings": 47.5,
+      "dratings_total_runs": 9.35,
+      "dratings_home_runs": 4.8,
+      "dratings_away_runs": 4.55,
+      "has_dratings": true,
+      "home_prob_parley": null,
+      "away_prob_parley": null,
+      "home_odds_parley": null,
+      "away_odds_parley": null,
+      "parley_text_pick_team": null,
+      "parley_text_pick_type": null,
+      "has_parley": false,
+      "home_prob_model": 57.2,
+      "away_prob_model": 42.8,
+      "has_model_prediction": true,
+      "sources_count": 2,
+      "sources_total": 5,
+      "sources_agree": true,
+      "sources_unanimous": false
+    }
+  ],
+  "games_ou": [
+    {
+      "sport": "MLB",
+      "home": "Philadelphia Phillies",
+      "away": "New York Mets",
+      "start_time": "06:10 PM",
+      "has_dratings_ou": false,
+      "dratings_ou_pick": null,
+      "dratings_ou_line": null,
+      "dratings_ou_diff": null,
+      "dratings_total_runs": null,
+      "dratings_ou_book": null,
+      "dratings_ou_over_odds": null,
+      "dratings_ou_under_odds": null,
+      "has_pickswise_ou": false,
+      "pickswise_ou_pick": null,
+      "pickswise_ou_line": null,
+      "pickswise_ou_confidence": null,
+      "pickswise_ou_odds": null,
+      "has_covers_ou": true,
+      "covers_ou_pick": "under",
+      "covers_ou_line": 9.5,
+      "covers_ou_pct_over": 45.0,
+      "covers_ou_pct_under": 55.0,
+      "has_parley_ou": false,
+      "parley_ou_pick": null,
+      "parley_ou_line": null,
+      "parley_ou_pct_over": null,
+      "parley_ou_pct_under": null,
+      "ou_sources_count": 1,
+      "ou_sources_total": 4,
+      "ou_opinions": [
+        [
+          "under",
+          "covers"
+        ]
+      ],
+      "ou_consensus_pick": "under",
+      "ou_agree_count": 1,
+      "ou_sources_agree": false,
+      "ou_sources_unanimous": false,
+      "ou_lines_by_source": {
+        "covers": 9.5
+      },
+      "ou_principal_line": 9.5,
+      "ou_lines_spread": 0,
+      "ou_lines_diverge": false
+    }
+  ],
+  "picks": [
+    {
+      "bet_type": "total",
+      "sport": "MLB",
+      "game": "New York Mets @ Philadelphia Phillies",
+      "home": "Philadelphia Phillies",
+      "away": "New York Mets",
+      "pick": "UNDER",
+      "side": "under",
+      "line": 9.5,
+      "start_time": "06:10 PM",
+      "confidence": 25.0,
+      "tier": "watch",
+      "tier_label": "Watch",
+      "recommended": false,
+      "odds_american": null,
+      "odds_source": null,
+      "edge_real": null,
+      "sources_count": 1,
+      "sources_total": 4,
+      "sources_agree": false,
+      "sources_unanimous": false,
+      "agree_count": 1,
+      "opinions": [
+        {
+          "source": "covers",
+          "pick": "under"
+        }
+      ],
+      "dratings_pick": null,
+      "dratings_line": null,
+      "dratings_diff": null,
+      "dratings_proj": null,
+      "pickswise_pick": null,
+      "pickswise_line": null,
+      "pickswise_confidence": null,
+      "covers_pick": "under",
+      "covers_line": 9.5,
+      "covers_pct_over": 45.0,
+      "covers_pct_under": 55.0,
+      "parley_pick": null,
+      "parley_line": null,
+      "parley_pct_over": null,
+      "parley_pct_under": null,
+      "lines_by_source": {
+        "covers": 9.5
+      },
+      "lines_spread": 0,
+      "lines_diverge": false
+    },
+    {
+      "bet_type": "moneyline",
+      "sport": "MLB",
+      "game": "New York Mets @ Philadelphia Phillies",
+      "home": "Philadelphia Phillies",
+      "away": "New York Mets",
+      "pick": "Philadelphia Phillies",
+      "side": "home",
+      "start_time": "06:10 PM",
+      "model_prob": 57.2,
+      "estimated_implied_prob": 56.1,
+      "edge": 1.1,
+      "confidence": 22.6,
+      "tier": "valor",
+      "tier_label": "Valor",
+      "recommended": true,
+      "estimated_odds": -128,
+      "real_odds": null,
+      "odds_source": "estimated",
+      "home_pitcher": "Aaron Nola",
+      "away_pitcher": "Christian Scott",
+      "sources_count": 2,
+      "sources_total": 5,
+      "sources_agree": true,
+      "sources_unanimous": false,
+      "numberfire_prob": null,
+      "covers_pct": 62.0,
+      "pickswise_prob": null,
+      "pickswise_confidence": null,
+      "has_pickswise": false,
+      "dratings_prob": 52.5,
+      "has_dratings": true,
+      "parley_prob": null,
+      "parley_odds": null,
+      "has_parley": false,
+      "dratings_total_runs": 9.35,
+      "dratings_home_runs": 4.8,
+      "dratings_away_runs": 4.55
+    }
+  ],
   "parlays": {},
   "stats": {
     "overall": {
-      "total": 659,
+      "total": 661,
       "verified": 481,
-      "pending": 178,
+      "pending": 180,
       "wins": 247,
       "losses": 222,
       "pushes": 12,
@@ -41,9 +225,9 @@
       "streak_type": "win"
     },
     "last_30_days": {
-      "total": 156,
+      "total": 158,
       "verified": 63,
-      "pending": 93,
+      "pending": 95,
       "wins": 37,
       "losses": 24,
       "pushes": 2,
@@ -54,17 +238,17 @@
       "streak_type": "win"
     },
     "last_7_days": {
-      "total": 53,
-      "verified": 26,
-      "pending": 27,
-      "wins": 14,
-      "losses": 12,
+      "total": 29,
+      "verified": 0,
+      "pending": 29,
+      "wins": 0,
+      "losses": 0,
       "pushes": 0,
-      "win_rate": 53.8,
-      "roi": -1.8,
-      "profit_units": -0.46,
-      "streak": 2,
-      "streak_type": "win"
+      "win_rate": 0,
+      "roi": 0,
+      "profit_units": 0.0,
+      "streak": 0,
+      "streak_type": null
     },
     "by_tier": {
       "premium": {
@@ -94,9 +278,9 @@
         "streak_type": "win"
       },
       "valor": {
-        "total": 116,
+        "total": 117,
         "verified": 87,
-        "pending": 29,
+        "pending": 30,
         "wins": 39,
         "losses": 44,
         "pushes": 4,
@@ -107,9 +291,9 @@
         "streak_type": "loss"
       },
       "watch": {
-        "total": 374,
+        "total": 375,
         "verified": 265,
-        "pending": 109,
+        "pending": 110,
         "wins": 129,
         "losses": 128,
         "pushes": 8,
@@ -122,9 +306,9 @@
     },
     "moneyline": {
       "overall": {
-        "total": 345,
+        "total": 346,
         "verified": 250,
-        "pending": 95,
+        "pending": 96,
         "wins": 143,
         "losses": 107,
         "pushes": 0,
@@ -135,9 +319,9 @@
         "streak_type": "loss"
       },
       "last_30_days": {
-        "total": 83,
+        "total": 84,
         "verified": 33,
-        "pending": 50,
+        "pending": 51,
         "wins": 21,
         "losses": 12,
         "pushes": 0,
@@ -148,17 +332,17 @@
         "streak_type": "loss"
       },
       "last_7_days": {
-        "total": 26,
-        "verified": 12,
-        "pending": 14,
-        "wins": 8,
-        "losses": 4,
+        "total": 15,
+        "verified": 0,
+        "pending": 15,
+        "wins": 0,
+        "losses": 0,
         "pushes": 0,
-        "win_rate": 66.7,
-        "roi": 18.0,
-        "profit_units": 2.16,
-        "streak": 1,
-        "streak_type": "loss"
+        "win_rate": 0,
+        "roi": 0,
+        "profit_units": 0.0,
+        "streak": 0,
+        "streak_type": null
       },
       "by_tier": {
         "premium": {
@@ -188,9 +372,9 @@
           "streak_type": "win"
         },
         "valor": {
-          "total": 49,
+          "total": 50,
           "verified": 22,
-          "pending": 27,
+          "pending": 28,
           "wins": 13,
           "losses": 9,
           "pushes": 0,
@@ -217,9 +401,9 @@
     },
     "total": {
       "overall": {
-        "total": 314,
+        "total": 315,
         "verified": 231,
-        "pending": 83,
+        "pending": 84,
         "wins": 104,
         "losses": 115,
         "pushes": 12,
@@ -230,9 +414,9 @@
         "streak_type": "win"
       },
       "last_30_days": {
-        "total": 73,
+        "total": 74,
         "verified": 30,
-        "pending": 43,
+        "pending": 44,
         "wins": 16,
         "losses": 12,
         "pushes": 2,
@@ -243,17 +427,17 @@
         "streak_type": "win"
       },
       "last_7_days": {
-        "total": 27,
-        "verified": 14,
-        "pending": 13,
-        "wins": 6,
-        "losses": 8,
+        "total": 14,
+        "verified": 0,
+        "pending": 14,
+        "wins": 0,
+        "losses": 0,
         "pushes": 0,
-        "win_rate": 42.9,
-        "roi": -18.7,
-        "profit_units": -2.62,
-        "streak": 3,
-        "streak_type": "win"
+        "win_rate": 0,
+        "roi": 0,
+        "profit_units": 0.0,
+        "streak": 0,
+        "streak_type": null
       },
       "by_tier": {
         "premium": {
@@ -296,9 +480,9 @@
           "streak_type": "loss"
         },
         "watch": {
-          "total": 216,
+          "total": 217,
           "verified": 141,
-          "pending": 75,
+          "pending": 76,
           "wins": 63,
           "losses": 70,
           "pushes": 8,

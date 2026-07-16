@@ -13654,7 +13654,49 @@
       "real_odds": null,
       "odds_source": "estimated",
       "sources_agree": false
+    },
+    {
+      "date_played": "2026-07-16",
+      "sport": "MLB",
+      "bet_type": "total",
+      "home": "Philadelphia Phillies",
+      "away": "New York Mets",
+      "pick": "UNDER",
+      "tier": "watch",
+      "confidence": 25.0,
+      "sources_count": 1,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-07-16T16:29:42.227375-04:00",
+      "side": "under",
+      "line": 9.5,
+      "odds_american": null,
+      "odds_source": null,
+      "edge_real": null,
+      "agree_count": 1,
+      "sources_unanimous": false
+    },
+    {
+      "date_played": "2026-07-16",
+      "sport": "MLB",
+      "bet_type": "moneyline",
+      "home": "Philadelphia Phillies",
+      "away": "New York Mets",
+      "pick": "Philadelphia Phillies",
+      "tier": "valor",
+      "confidence": 22.6,
+      "sources_count": 2,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-07-16T16:29:42.227459-04:00",
+      "side": "home",
+      "model_prob": 57.2,
+      "edge": 1.1,
+      "estimated_odds": -128,
+      "real_odds": null,
+      "odds_source": "estimated",
+      "sources_agree": true
     }
   ],
-  "last_update": "2026-07-15T22:35:16.423398-04:00"
+  "last_update": "2026-07-16T16:29:30.352734-04:00"
 }
