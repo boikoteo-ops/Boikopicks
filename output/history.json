@@ -14809,7 +14809,28 @@
       "real_odds": null,
       "odds_source": "estimated",
       "sources_agree": false
+    },
+    {
+      "date_played": "2026-07-20",
+      "sport": "MLB",
+      "bet_type": "moneyline",
+      "home": "Cleveland Guardians",
+      "away": "Minnesota Twins",
+      "pick": "Minnesota Twins",
+      "tier": "watch",
+      "confidence": 9.9,
+      "sources_count": 2,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-07-20T18:39:48.983382-04:00",
+      "side": "away",
+      "model_prob": 52.0,
+      "edge": 0.3,
+      "estimated_odds": -107,
+      "real_odds": null,
+      "odds_source": "estimated",
+      "sources_agree": true
     }
   ],
-  "last_update": "2026-07-20T18:00:07.869755-04:00"
+  "last_update": "2026-07-20T18:39:36.825133-04:00"
 }
