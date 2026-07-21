@@ -15397,7 +15397,28 @@
       "real_odds": null,
       "odds_source": "estimated",
       "sources_agree": true
+    },
+    {
+      "date_played": "2026-07-21",
+      "sport": "MLB",
+      "bet_type": "total",
+      "home": "Los Angeles Angels",
+      "away": "St. Louis Cardinals",
+      "pick": "UNDER",
+      "tier": "watch",
+      "confidence": 25.0,
+      "sources_count": 1,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-07-21T18:00:14.675605-04:00",
+      "side": "under",
+      "line": 9.5,
+      "odds_american": 103,
+      "odds_source": "dratings",
+      "edge_real": null,
+      "agree_count": 1,
+      "sources_unanimous": false
     }
   ],
-  "last_update": "2026-07-21T17:30:55.389965-04:00"
+  "last_update": "2026-07-21T18:00:03.655492-04:00"
 }
