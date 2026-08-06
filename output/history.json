@@ -20353,7 +20353,49 @@
       "edge_real": null,
       "agree_count": 1,
       "sources_unanimous": false
+    },
+    {
+      "date_played": "2026-08-05",
+      "sport": "MLB",
+      "bet_type": "total",
+      "home": "Milwaukee Brewers",
+      "away": "Pittsburgh Pirates",
+      "pick": "OVER",
+      "tier": "watch",
+      "confidence": 25.0,
+      "sources_count": 1,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-08-05T21:00:30.883800-04:00",
+      "side": "over",
+      "line": 7.5,
+      "odds_american": null,
+      "odds_source": null,
+      "edge_real": null,
+      "agree_count": 1,
+      "sources_unanimous": false
+    },
+    {
+      "date_played": "2026-08-05",
+      "sport": "MLB",
+      "bet_type": "total",
+      "home": "Seattle Mariners",
+      "away": "Detroit Tigers",
+      "pick": "OVER",
+      "tier": "watch",
+      "confidence": 25.0,
+      "sources_count": 1,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-08-05T21:00:30.883852-04:00",
+      "side": "over",
+      "line": 7.5,
+      "odds_american": null,
+      "odds_source": null,
+      "edge_real": null,
+      "agree_count": 1,
+      "sources_unanimous": false
     }
   ],
-  "last_update": "2026-08-05T18:00:03.873166-04:00"
+  "last_update": "2026-08-05T21:00:18.565948-04:00"
 }
