@@ -23440,7 +23440,28 @@
       "edge_real": null,
       "agree_count": 1,
       "sources_unanimous": false
+    },
+    {
+      "date_played": "2026-08-12",
+      "sport": "MLB",
+      "bet_type": "total",
+      "home": "San Diego Padres",
+      "away": "Milwaukee Brewers",
+      "pick": "UNDER",
+      "tier": "watch",
+      "confidence": 25.0,
+      "sources_count": 1,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-08-12T15:00:20.438636-04:00",
+      "side": "under",
+      "line": 8.5,
+      "odds_american": -105,
+      "odds_source": "dratings",
+      "edge_real": null,
+      "agree_count": 1,
+      "sources_unanimous": false
     }
   ],
-  "last_update": "2026-08-12T12:00:20.267257-04:00"
+  "last_update": "2026-08-12T15:00:05.360795-04:00"
 }
