@@ -24511,7 +24511,49 @@
       "real_odds": null,
       "odds_source": "estimated",
       "sources_agree": false
+    },
+    {
+      "date_played": "2026-08-14",
+      "sport": "MLB",
+      "bet_type": "total",
+      "home": "Los Angeles Dodgers",
+      "away": "Milwaukee Brewers",
+      "pick": "UNDER",
+      "tier": "watch",
+      "confidence": 25.0,
+      "sources_count": 1,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-08-14T18:00:20.028394-04:00",
+      "side": "under",
+      "line": 7.5,
+      "odds_american": null,
+      "odds_source": null,
+      "edge_real": null,
+      "agree_count": 1,
+      "sources_unanimous": false
+    },
+    {
+      "date_played": "2026-08-14",
+      "sport": "MLB",
+      "bet_type": "moneyline",
+      "home": "Los Angeles Angels",
+      "away": "Kansas City Royals",
+      "pick": "Kansas City Royals",
+      "tier": "watch",
+      "confidence": 15.5,
+      "sources_count": 2,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-08-14T18:00:20.028538-04:00",
+      "side": "away",
+      "model_prob": 54.3,
+      "edge": 0.6,
+      "estimated_odds": -116,
+      "real_odds": null,
+      "odds_source": "estimated",
+      "sources_agree": true
     }
   ],
-  "last_update": "2026-08-14T15:00:04.613741-04:00"
+  "last_update": "2026-08-14T18:00:07.171323-04:00"
 }
