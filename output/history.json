@@ -25771,7 +25771,49 @@
       "real_odds": null,
       "odds_source": "estimated",
       "sources_agree": true
+    },
+    {
+      "date_played": "2026-08-17",
+      "sport": "MLB",
+      "bet_type": "total",
+      "home": "New York Mets",
+      "away": "San Diego Padres",
+      "pick": "UNDER",
+      "tier": "watch",
+      "confidence": 25.0,
+      "sources_count": 1,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-08-17T15:00:17.397752-04:00",
+      "side": "under",
+      "line": 8.0,
+      "odds_american": -115,
+      "odds_source": "dratings",
+      "edge_real": null,
+      "agree_count": 1,
+      "sources_unanimous": false
+    },
+    {
+      "date_played": "2026-08-17",
+      "sport": "MLB",
+      "bet_type": "total",
+      "home": "Minnesota Twins",
+      "away": "Atlanta Braves",
+      "pick": "UNDER",
+      "tier": "watch",
+      "confidence": 25.0,
+      "sources_count": 1,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-08-17T15:00:17.398023-04:00",
+      "side": "under",
+      "line": 9.0,
+      "odds_american": -105,
+      "odds_source": "dratings",
+      "edge_real": null,
+      "agree_count": 1,
+      "sources_unanimous": false
     }
   ],
-  "last_update": "2026-08-17T14:09:57.147653-04:00"
+  "last_update": "2026-08-17T15:00:05.024777-04:00"
 }
