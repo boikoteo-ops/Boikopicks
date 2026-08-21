@@ -28186,7 +28186,28 @@
       "real_odds": null,
       "odds_source": "estimated",
       "sources_agree": true
+    },
+    {
+      "date_played": "2026-08-21",
+      "sport": "MLB",
+      "bet_type": "total",
+      "home": "Arizona Diamondbacks",
+      "away": "Cincinnati Reds",
+      "pick": "UNDER",
+      "tier": "watch",
+      "confidence": 25.0,
+      "sources_count": 1,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-08-21T18:00:18.001932-04:00",
+      "side": "under",
+      "line": 8.5,
+      "odds_american": null,
+      "odds_source": null,
+      "edge_real": null,
+      "agree_count": 1,
+      "sources_unanimous": false
     }
   ],
-  "last_update": "2026-08-21T16:16:02.342322-04:00"
+  "last_update": "2026-08-21T18:00:04.758497-04:00"
 }
