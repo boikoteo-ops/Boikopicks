@@ -30055,7 +30055,49 @@
       "real_odds": null,
       "odds_source": "estimated",
       "sources_agree": true
+    },
+    {
+      "date_played": "2026-08-26",
+      "sport": "MLB",
+      "bet_type": "total",
+      "home": "St. Louis Cardinals",
+      "away": "Baltimore Orioles",
+      "pick": "OVER",
+      "tier": "watch",
+      "confidence": 42.0,
+      "sources_count": 2,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-08-26T18:00:33.780457-04:00",
+      "side": "over",
+      "line": 8.5,
+      "odds_american": -120,
+      "odds_source": "dratings",
+      "edge_real": -0.2,
+      "agree_count": 2,
+      "sources_unanimous": false
+    },
+    {
+      "date_played": "2026-08-26",
+      "sport": "MLB",
+      "bet_type": "total",
+      "home": "Toronto Blue Jays",
+      "away": "Kansas City Royals",
+      "pick": "OVER",
+      "tier": "watch",
+      "confidence": 25.0,
+      "sources_count": 1,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-08-26T18:00:33.780619-04:00",
+      "side": "over",
+      "line": 8.5,
+      "odds_american": null,
+      "odds_source": null,
+      "edge_real": null,
+      "agree_count": 1,
+      "sources_unanimous": false
     }
   ],
-  "last_update": "2026-08-26T16:16:38.227899-04:00"
+  "last_update": "2026-08-26T18:00:19.172209-04:00"
 }
