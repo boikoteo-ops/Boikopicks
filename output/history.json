@@ -31504,7 +31504,28 @@
       "edge_real": null,
       "agree_count": 1,
       "sources_unanimous": false
+    },
+    {
+      "date_played": "2026-08-29",
+      "sport": "MLB",
+      "bet_type": "moneyline",
+      "home": "New York Yankees",
+      "away": "Boston Red Sox",
+      "pick": "Boston Red Sox",
+      "tier": "watch",
+      "confidence": 4.9,
+      "sources_count": 1,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-08-29T21:00:25.150444-04:00",
+      "side": "away",
+      "model_prob": 52.0,
+      "edge": 0.3,
+      "estimated_odds": -107,
+      "real_odds": null,
+      "odds_source": "estimated",
+      "sources_agree": null
     }
   ],
-  "last_update": "2026-08-29T18:00:06.020422-04:00"
+  "last_update": "2026-08-29T21:00:14.083039-04:00"
 }
