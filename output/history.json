@@ -33058,7 +33058,28 @@
       "real_odds": null,
       "odds_source": "estimated",
       "sources_agree": true
+    },
+    {
+      "date_played": "2026-09-01",
+      "sport": "MLB",
+      "bet_type": "total",
+      "home": "Colorado Rockies",
+      "away": "Baltimore Orioles",
+      "pick": "OVER",
+      "tier": "watch",
+      "confidence": 47.0,
+      "sources_count": 2,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-09-01T15:00:29.257475-04:00",
+      "side": "over",
+      "line": 11.5,
+      "odds_american": -115,
+      "odds_source": "dratings",
+      "edge_real": 1.8,
+      "agree_count": 2,
+      "sources_unanimous": false
     }
   ],
-  "last_update": "2026-09-01T12:00:18.865134-04:00"
+  "last_update": "2026-09-01T15:00:11.196589-04:00"
 }
