@@ -33100,7 +33100,49 @@
       "edge_real": null,
       "agree_count": 1,
       "sources_unanimous": false
+    },
+    {
+      "date_played": "2026-09-01",
+      "sport": "MLB",
+      "bet_type": "total",
+      "home": "Los Angeles Angels",
+      "away": "New York Yankees",
+      "pick": "OVER",
+      "tier": "watch",
+      "confidence": 25.0,
+      "sources_count": 1,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-09-01T21:00:20.009424-04:00",
+      "side": "over",
+      "line": 7.0,
+      "odds_american": null,
+      "odds_source": null,
+      "edge_real": null,
+      "agree_count": 1,
+      "sources_unanimous": false
+    },
+    {
+      "date_played": "2026-09-01",
+      "sport": "MLB",
+      "bet_type": "total",
+      "home": "Arizona Diamondbacks",
+      "away": "Philadelphia Phillies",
+      "pick": "UNDER",
+      "tier": "watch",
+      "confidence": 25.0,
+      "sources_count": 1,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-09-01T21:00:20.009447-04:00",
+      "side": "under",
+      "line": 7.5,
+      "odds_american": null,
+      "odds_source": null,
+      "edge_real": null,
+      "agree_count": 1,
+      "sources_unanimous": false
     }
   ],
-  "last_update": "2026-09-01T18:00:04.902616-04:00"
+  "last_update": "2026-09-01T21:00:04.935517-04:00"
 }
