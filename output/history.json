@@ -34066,7 +34066,49 @@
       "real_odds": null,
       "odds_source": "estimated",
       "sources_agree": true
+    },
+    {
+      "date_played": "2026-09-03",
+      "sport": "MLB",
+      "bet_type": "total",
+      "home": "Cleveland Guardians",
+      "away": "Toronto Blue Jays",
+      "pick": "UNDER",
+      "tier": "watch",
+      "confidence": 25.0,
+      "sources_count": 1,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-09-03T08:00:24.354401-04:00",
+      "side": "under",
+      "line": 8.0,
+      "odds_american": null,
+      "odds_source": null,
+      "edge_real": null,
+      "agree_count": 1,
+      "sources_unanimous": false
+    },
+    {
+      "date_played": "2026-09-03",
+      "sport": "MLB",
+      "bet_type": "moneyline",
+      "home": "Baltimore Orioles",
+      "away": "Boston Red Sox",
+      "pick": "Boston Red Sox",
+      "tier": "watch",
+      "confidence": 11.9,
+      "sources_count": 2,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-09-03T08:00:24.354503-04:00",
+      "side": "away",
+      "model_prob": 52.8,
+      "edge": 0.4,
+      "estimated_odds": -110,
+      "real_odds": null,
+      "odds_source": "estimated",
+      "sources_agree": true
     }
   ],
-  "last_update": "2026-09-03T06:34:43.159825-04:00"
+  "last_update": "2026-09-03T08:00:06.018726-04:00"
 }
