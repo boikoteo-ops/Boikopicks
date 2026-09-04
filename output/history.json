@@ -34990,7 +34990,28 @@
       "edge_real": null,
       "agree_count": 1,
       "sources_unanimous": false
+    },
+    {
+      "date_played": "2026-09-04",
+      "sport": "MLB",
+      "bet_type": "total",
+      "home": "San Diego Padres",
+      "away": "New York Yankees",
+      "pick": "UNDER",
+      "tier": "watch",
+      "confidence": 25.0,
+      "sources_count": 1,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-09-04T18:00:46.863717-04:00",
+      "side": "under",
+      "line": 7.5,
+      "odds_american": null,
+      "odds_source": null,
+      "edge_real": null,
+      "agree_count": 1,
+      "sources_unanimous": false
     }
   ],
-  "last_update": "2026-09-04T15:00:06.161615-04:00"
+  "last_update": "2026-09-04T18:00:14.102991-04:00"
 }
