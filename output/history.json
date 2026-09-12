@@ -37321,7 +37321,49 @@
       "real_odds": null,
       "odds_source": "estimated",
       "sources_agree": true
+    },
+    {
+      "date_played": "2026-09-12",
+      "sport": "MLB",
+      "bet_type": "total",
+      "home": "Chicago Cubs",
+      "away": "Pittsburgh Pirates",
+      "pick": "UNDER",
+      "tier": "watch",
+      "confidence": 25.0,
+      "sources_count": 1,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-09-12T12:00:34.593551-04:00",
+      "side": "under",
+      "line": 9.0,
+      "odds_american": null,
+      "odds_source": null,
+      "edge_real": null,
+      "agree_count": 1,
+      "sources_unanimous": false
+    },
+    {
+      "date_played": "2026-09-12",
+      "sport": "MLB",
+      "bet_type": "total",
+      "home": "San Francisco Giants",
+      "away": "San Diego Padres",
+      "pick": "UNDER",
+      "tier": "watch",
+      "confidence": 25.0,
+      "sources_count": 1,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-09-12T12:00:34.593601-04:00",
+      "side": "under",
+      "line": 8.0,
+      "odds_american": null,
+      "odds_source": null,
+      "edge_real": null,
+      "agree_count": 1,
+      "sources_unanimous": false
     }
   ],
-  "last_update": "2026-09-12T11:17:02.885389-04:00"
+  "last_update": "2026-09-12T12:00:20.865157-04:00"
 }
