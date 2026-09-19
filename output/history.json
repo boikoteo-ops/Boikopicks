@@ -40030,7 +40030,49 @@
       "real_odds": null,
       "odds_source": "estimated",
       "sources_agree": true
+    },
+    {
+      "date_played": "2026-09-18",
+      "sport": "MLB",
+      "bet_type": "moneyline",
+      "home": "Chicago White Sox",
+      "away": "Detroit Tigers",
+      "pick": "Chicago White Sox",
+      "tier": "watch",
+      "confidence": 39.2,
+      "sources_count": 1,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-09-18T21:00:26.214326-04:00",
+      "side": "home",
+      "model_prob": 66.0,
+      "edge": 2.4,
+      "estimated_odds": -175,
+      "real_odds": null,
+      "odds_source": "estimated",
+      "sources_agree": null
+    },
+    {
+      "date_played": "2026-09-18",
+      "sport": "MLB",
+      "bet_type": "moneyline",
+      "home": "Texas Rangers",
+      "away": "Toronto Blue Jays",
+      "pick": "Texas Rangers",
+      "tier": "watch",
+      "confidence": 31.9,
+      "sources_count": 1,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-09-18T21:00:26.214343-04:00",
+      "side": "home",
+      "model_prob": 63.0,
+      "edge": 2.0,
+      "estimated_odds": -157,
+      "real_odds": null,
+      "odds_source": "estimated",
+      "sources_agree": null
     }
   ],
-  "last_update": "2026-09-18T20:16:12.188322-04:00"
+  "last_update": "2026-09-18T21:00:14.302400-04:00"
 }
