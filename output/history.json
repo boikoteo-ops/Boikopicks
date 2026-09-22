@@ -41941,7 +41941,28 @@
       "real_odds": null,
       "odds_source": "estimated",
       "sources_agree": null
+    },
+    {
+      "date_played": "2026-09-22",
+      "sport": "MLB",
+      "bet_type": "total",
+      "home": "Texas Rangers",
+      "away": "New York Mets",
+      "pick": "OVER",
+      "tier": "watch",
+      "confidence": 30.0,
+      "sources_count": 1,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-09-22T18:00:26.608014-04:00",
+      "side": "over",
+      "line": 8.0,
+      "odds_american": -105,
+      "odds_source": "dratings",
+      "edge_real": null,
+      "agree_count": 1,
+      "sources_unanimous": false
     }
   ],
-  "last_update": "2026-09-22T16:26:21.104526-04:00"
+  "last_update": "2026-09-22T18:00:14.363969-04:00"
 }
