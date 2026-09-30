@@ -43222,7 +43222,28 @@
       "real_odds": null,
       "odds_source": "estimated",
       "sources_agree": true
+    },
+    {
+      "date_played": "2026-09-29",
+      "sport": "MLB",
+      "bet_type": "total",
+      "home": "San Diego Padres",
+      "away": "Chicago Cubs",
+      "pick": "OVER",
+      "tier": "watch",
+      "confidence": 30.0,
+      "sources_count": 1,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-09-29T21:00:15.074535-04:00",
+      "side": "over",
+      "line": 7.5,
+      "odds_american": null,
+      "odds_source": null,
+      "edge_real": null,
+      "agree_count": 1,
+      "sources_unanimous": false
     }
   ],
-  "last_update": "2026-09-29T18:00:23.027578-04:00"
+  "last_update": "2026-09-29T21:00:04.369725-04:00"
 }
