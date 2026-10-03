@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-03T14:36:14.296049-04:00",
+  "generated_at": "2026-10-03T15:06:05.956249-04:00",
   "date_display": "03/10/2026",
   "summary": {
     "total_games_mlb": 4,
@@ -410,8 +410,8 @@
       "has_covers_ou": true,
       "covers_ou_pick": "over",
       "covers_ou_line": 7.0,
-      "covers_ou_pct_over": 55.0,
-      "covers_ou_pct_under": 45.0,
+      "covers_ou_pct_over": 54.0,
+      "covers_ou_pct_under": 46.0,
       "has_parley_ou": false,
       "parley_ou_pick": null,
       "parley_ou_line": null,
@@ -483,60 +483,6 @@
       "dratings_away_runs": 3.5
     },
     {
-      "bet_type": "total",
-      "sport": "MLB",
-      "game": "San Diego Padres @ Milwaukee Brewers",
-      "home": "Milwaukee Brewers",
-      "away": "San Diego Padres",
-      "pick": "OVER",
-      "side": "over",
-      "line": 7.0,
-      "start_time": "08:30 PM",
-      "confidence": 39.0,
-      "tier": "watch",
-      "tier_label": "Watch",
-      "recommended": false,
-      "odds_american": -105,
-      "odds_source": "dratings",
-      "edge_real": 1.0,
-      "sources_count": 2,
-      "sources_total": 4,
-      "sources_agree": true,
-      "sources_unanimous": false,
-      "agree_count": 2,
-      "opinions": [
-        {
-          "source": "dratings",
-          "pick": "over"
-        },
-        {
-          "source": "covers",
-          "pick": "over"
-        }
-      ],
-      "dratings_pick": "over",
-      "dratings_line": 7.0,
-      "dratings_diff": 0.25,
-      "dratings_proj": 7.25,
-      "pickswise_pick": null,
-      "pickswise_line": null,
-      "pickswise_confidence": null,
-      "covers_pick": "over",
-      "covers_line": 7.0,
-      "covers_pct_over": 55.0,
-      "covers_pct_under": 45.0,
-      "parley_pick": null,
-      "parley_line": null,
-      "parley_pct_over": null,
-      "parley_pct_under": null,
-      "lines_by_source": {
-        "dratings": 7.0,
-        "covers": 7.0
-      },
-      "lines_spread": 0.0,
-      "lines_diverge": false
-    },
-    {
       "bet_type": "moneyline",
       "sport": "MLB",
       "game": "San Diego Padres @ Milwaukee Brewers",
@@ -574,6 +520,60 @@
       "dratings_total_runs": 7.25,
       "dratings_home_runs": 4.4,
       "dratings_away_runs": 2.85
+    },
+    {
+      "bet_type": "total",
+      "sport": "MLB",
+      "game": "San Diego Padres @ Milwaukee Brewers",
+      "home": "Milwaukee Brewers",
+      "away": "San Diego Padres",
+      "pick": "OVER",
+      "side": "over",
+      "line": 7.0,
+      "start_time": "08:30 PM",
+      "confidence": 37.0,
+      "tier": "watch",
+      "tier_label": "Watch",
+      "recommended": false,
+      "odds_american": -105,
+      "odds_source": "dratings",
+      "edge_real": 0.8,
+      "sources_count": 2,
+      "sources_total": 4,
+      "sources_agree": true,
+      "sources_unanimous": false,
+      "agree_count": 2,
+      "opinions": [
+        {
+          "source": "dratings",
+          "pick": "over"
+        },
+        {
+          "source": "covers",
+          "pick": "over"
+        }
+      ],
+      "dratings_pick": "over",
+      "dratings_line": 7.0,
+      "dratings_diff": 0.25,
+      "dratings_proj": 7.25,
+      "pickswise_pick": null,
+      "pickswise_line": null,
+      "pickswise_confidence": null,
+      "covers_pick": "over",
+      "covers_line": 7.0,
+      "covers_pct_over": 54.0,
+      "covers_pct_under": 46.0,
+      "parley_pick": null,
+      "parley_line": null,
+      "parley_pct_over": null,
+      "parley_pct_under": null,
+      "lines_by_source": {
+        "dratings": 7.0,
+        "covers": 7.0
+      },
+      "lines_spread": 0.0,
+      "lines_diverge": false
     },
     {
       "bet_type": "total",
