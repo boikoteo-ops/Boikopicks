@@ -43663,7 +43663,49 @@
       "real_odds": null,
       "odds_source": "estimated",
       "sources_agree": true
+    },
+    {
+      "date_played": "2026-10-10",
+      "sport": "MLB",
+      "bet_type": "total",
+      "home": "Cleveland Guardians",
+      "away": "Chicago White Sox",
+      "pick": "OVER",
+      "tier": "watch",
+      "confidence": 56.0,
+      "sources_count": 2,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-10-10T08:00:29.828360-04:00",
+      "side": "over",
+      "line": 7.5,
+      "odds_american": -120,
+      "odds_source": "dratings",
+      "edge_real": 4.4,
+      "agree_count": 2,
+      "sources_unanimous": false
+    },
+    {
+      "date_played": "2026-10-10",
+      "sport": "MLB",
+      "bet_type": "moneyline",
+      "home": "Cleveland Guardians",
+      "away": "Chicago White Sox",
+      "pick": "Cleveland Guardians",
+      "tier": "valor",
+      "confidence": 22.6,
+      "sources_count": 2,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-10-10T08:00:29.828513-04:00",
+      "side": "home",
+      "model_prob": 57.2,
+      "edge": 1.1,
+      "estimated_odds": -128,
+      "real_odds": null,
+      "odds_source": "estimated",
+      "sources_agree": true
     }
   ],
-  "last_update": "2026-10-05T18:00:13.111627-04:00"
+  "last_update": "2026-10-10T08:00:17.454649-04:00"
 }
