@@ -43674,8 +43674,8 @@
       "tier": "watch",
       "confidence": 56.0,
       "sources_count": 2,
-      "result": null,
-      "verified_at": null,
+      "result": "loss",
+      "verified_at": "2026-10-11T05:39:02.522824-04:00",
       "tracked_at": "2026-10-10T08:00:29.828360-04:00",
       "side": "over",
       "line": 7.5,
@@ -43695,8 +43695,8 @@
       "tier": "valor",
       "confidence": 22.6,
       "sources_count": 2,
-      "result": null,
-      "verified_at": null,
+      "result": "win",
+      "verified_at": "2026-10-11T05:39:02.522910-04:00",
       "tracked_at": "2026-10-10T08:00:29.828513-04:00",
       "side": "home",
       "model_prob": 57.2,
@@ -43705,7 +43705,28 @@
       "real_odds": null,
       "odds_source": "estimated",
       "sources_agree": true
+    },
+    {
+      "date_played": "2026-10-11",
+      "sport": "MLB",
+      "bet_type": "moneyline",
+      "home": "Milwaukee Brewers",
+      "away": "Los Angeles Dodgers",
+      "pick": "Milwaukee Brewers",
+      "tier": "valor",
+      "confidence": 24.6,
+      "sources_count": 2,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-10-11T05:39:01.922679-04:00",
+      "side": "home",
+      "model_prob": 58.0,
+      "edge": 1.2,
+      "estimated_odds": -131,
+      "real_odds": null,
+      "odds_source": "estimated",
+      "sources_agree": true
     }
   ],
-  "last_update": "2026-10-10T09:08:51.077801-04:00"
+  "last_update": "2026-10-11T05:38:49.486942-04:00"
 }
