@@ -43810,7 +43810,49 @@
       "real_odds": null,
       "odds_source": "estimated",
       "sources_agree": false
+    },
+    {
+      "date_played": "2026-10-19",
+      "sport": "MLB",
+      "bet_type": "moneyline",
+      "home": "Tampa Bay Rays",
+      "away": "Cleveland Guardians",
+      "pick": "Tampa Bay Rays",
+      "tier": "premium",
+      "confidence": 44.2,
+      "sources_count": 2,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-10-19T16:35:09.187122-04:00",
+      "side": "home",
+      "model_prob": 66.0,
+      "edge": 2.4,
+      "estimated_odds": -175,
+      "real_odds": null,
+      "odds_source": "estimated",
+      "sources_agree": true
+    },
+    {
+      "date_played": "2026-10-19",
+      "sport": "MLB",
+      "bet_type": "total",
+      "home": "Tampa Bay Rays",
+      "away": "Cleveland Guardians",
+      "pick": "OVER",
+      "tier": "watch",
+      "confidence": 30.0,
+      "sources_count": 1,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-10-19T16:35:09.187271-04:00",
+      "side": "over",
+      "line": 6.5,
+      "odds_american": null,
+      "odds_source": null,
+      "edge_real": null,
+      "agree_count": 1,
+      "sources_unanimous": false
     }
   ],
-  "last_update": "2026-10-12T15:00:15.838479-04:00"
+  "last_update": "2026-10-19T16:34:40.973274-04:00"
 }
