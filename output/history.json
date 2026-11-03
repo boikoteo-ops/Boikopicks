@@ -43873,7 +43873,28 @@
       "edge_real": null,
       "agree_count": 1,
       "sources_unanimous": false
+    },
+    {
+      "date_played": "2026-11-02",
+      "sport": "NBA",
+      "bet_type": "moneyline",
+      "home": "Denver Nuggets",
+      "away": "Portland Trail Blazers",
+      "pick": "Denver Nuggets",
+      "tier": "watch",
+      "confidence": 36.8,
+      "sources_count": 1,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-11-02T21:00:26.015544-04:00",
+      "side": "home",
+      "model_prob": 65.0,
+      "edge": 2.2,
+      "estimated_odds": -168,
+      "real_odds": null,
+      "odds_source": "estimated",
+      "sources_agree": null
     }
   ],
-  "last_update": "2026-11-01T21:00:04.827552-04:00"
+  "last_update": "2026-11-02T21:00:13.504423-04:00"
 }
