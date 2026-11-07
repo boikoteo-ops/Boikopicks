@@ -43894,7 +43894,28 @@
       "real_odds": null,
       "odds_source": "estimated",
       "sources_agree": null
+    },
+    {
+      "date_played": "2026-11-07",
+      "sport": "NBA",
+      "bet_type": "moneyline",
+      "home": "Golden State Warriors",
+      "away": "Orlando Magic",
+      "pick": "Golden State Warriors",
+      "tier": "watch",
+      "confidence": 76.0,
+      "sources_count": 1,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-11-07T12:00:30.113123-04:00",
+      "side": "home",
+      "model_prob": 81.0,
+      "edge": 4.7,
+      "estimated_odds": -323,
+      "real_odds": null,
+      "odds_source": "estimated",
+      "sources_agree": null
     }
   ],
-  "last_update": "2026-11-03T18:53:45.148880-04:00"
+  "last_update": "2026-11-07T12:00:17.160292-04:00"
 }
