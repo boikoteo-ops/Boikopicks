@@ -43905,8 +43905,8 @@
       "tier": "watch",
       "confidence": 76.0,
       "sources_count": 1,
-      "result": null,
-      "verified_at": null,
+      "result": "win",
+      "verified_at": "2026-11-08T18:00:26.961900-04:00",
       "tracked_at": "2026-11-07T12:00:30.113123-04:00",
       "side": "home",
       "model_prob": 81.0,
@@ -43917,5 +43917,5 @@
       "sources_agree": null
     }
   ],
-  "last_update": "2026-11-07T18:00:04.844083-04:00"
+  "last_update": "2026-11-08T18:00:14.618337-04:00"
 }
