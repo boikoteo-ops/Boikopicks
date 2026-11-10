@@ -43915,7 +43915,28 @@
       "real_odds": null,
       "odds_source": "estimated",
       "sources_agree": null
+    },
+    {
+      "date_played": "2026-11-10",
+      "sport": "NBA",
+      "bet_type": "moneyline",
+      "home": "Portland Trail Blazers",
+      "away": "Oklahoma City Thunder",
+      "pick": "Oklahoma City Thunder",
+      "tier": "watch",
+      "confidence": 41.6,
+      "sources_count": 1,
+      "result": null,
+      "verified_at": null,
+      "tracked_at": "2026-11-10T18:00:39.183731-04:00",
+      "side": "away",
+      "model_prob": 67.0,
+      "edge": 2.5,
+      "estimated_odds": -181,
+      "real_odds": null,
+      "odds_source": "estimated",
+      "sources_agree": null
     }
   ],
-  "last_update": "2026-11-08T18:00:14.618337-04:00"
+  "last_update": "2026-11-10T18:00:17.422409-04:00"
 }
